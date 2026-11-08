@@ -281,7 +281,8 @@ def interval_trip_representatives(day_data: DayRepresentatives, settings: Settin
             for before, current, after in zip(selected, selected[1:], selected[2:])
             if before.stop_sequence + 1 == current.stop_sequence
             and current.stop_sequence + 1 == after.stop_sequence
-            and current.delay > 600 and before.delay <= 180 and after.delay <= 180
+            and ((current.delay > 600 and -60 <= before.delay <= 180 and -60 <= after.delay <= 180)
+                 or (current.delay < -600 and -60 <= before.delay <= 180 and -60 <= after.delay <= 180))
         }
         if isolated_spikes:
             selected = [v for v in selected if v.observation_id not in isolated_spikes]
