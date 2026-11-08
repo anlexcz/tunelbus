@@ -1,0 +1,18 @@
+[Unit]
+Description=Tunelbus trolleybus raw realtime collector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=anlex
+WorkingDirectory=/srv/anlex/tunelbus
+EnvironmentFile=/srv/anlex/tunelbus/.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/srv/anlex/tunelbus/.venv/bin/python -m app.trolleybus collect
+Restart=always
+RestartSec=15
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
