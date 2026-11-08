@@ -274,6 +274,17 @@ def interval_trip_representatives(day_data: DayRepresentatives, settings: Settin
              if "delay_vs_last_stop_conflict" not in value.flags),
             key=lambda value: value.stop_sequence,
         )
+        # A single implausible spike bracketed by normal adjacent stops is
+        # diagnostically retained but does not distort public aggregates.
+        isolated_spikes = {
+            current.observation_id
+            for before, current, after in zip(selected, selected[1:], selected[2:])
+            if before.stop_sequence + 1 == current.stop_sequence
+            and current.stop_sequence + 1 == after.stop_sequence
+            and current.delay > 600 and before.delay <= 180 and after.delay <= 180
+        }
+        if isolated_spikes:
+            selected = [v for v in selected if v.observation_id not in isolated_spikes]
         if trip.trip_id not in day_data.structurally_usable_trip_ids or not selected:
             continue
         last = selected[-1]
