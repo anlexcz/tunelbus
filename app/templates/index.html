@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block head_assets %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+
+{% block content %}
+<section class="live-section" aria-labelledby="live-title">
+  <div class="site-shell">
+    <div class="live-section__heading">
+      <h1 id="live-title">Aktuální provoz</h1>
+      <time class="live-date" datetime="{{ live.service_date }}">{{ live_date }}</time>
+    </div>
+
+    <p id="live-trend" class="live-trend" role="status">→ Trend zatím není k dispozici.</p>
+
+    <div class="live-metrics" aria-label="Přehled aktuálního provozu">
+        <article class="metric metric--primary">
+          <p class="metric__label">Aktuální zpoždění</p>
+          <p id="current-delay" class="metric__value metric__value--empty">—</p>
+        </article>
+
+        <article class="metric">
+          <p class="metric__label">Průměrné zpoždění</p>
+          <p id="average-delay" class="metric__value metric__value--empty">—</p>
+        </article>
+
+        <article class="metric">
+          <p class="metric__label">Největší zpoždění</p>
+          <p id="maximum-delay" class="metric__value metric__value--empty">—</p>
+          <p id="maximum-delay-details" class="metric__detail" hidden></p>
+        </article>
+
+        <article class="metric">
+          <div class="metric__label-row">
+            <p class="metric__label">Včas</p>
+            <button class="metric__info" type="button" aria-label="Více informací o metrice Včas" aria-controls="on-time-description" aria-expanded="false">i</button>
+          </div>
+          <p id="on-time" class="metric__value metric__value--empty">—</p>
+          <p id="on-time-description" class="metric__popover" role="status" hidden>Spoj se považuje za včasný, pokud má zpoždění menší než 180 sekund.</p>
+        </article>
+    </div>
+
+    <section class="map-panel" aria-labelledby="map-title">
+      <h2 id="map-title" class="visually-hidden">Poloha spojů</h2>
+      <div id="map" class="map-canvas" aria-label="Živá mapa autobusů linky 145">
+        <p id="map-message" class="map-canvas__message">Načítám živou mapu.</p>
+      </div>
+      <p id="update-state" class="map-panel__update" role="status">Aktualizace dat —</p>
+    </section>
+
+    <section class="day-controls" aria-labelledby="day-controls-title" data-selected-day="{{ selected_day }}" data-days='{{ days | tojson }}' data-previous-day="{{ navigation.previous or '' }}" data-next-day="{{ navigation.next or '' }}">
+      <h2 id="day-controls-title" class="visually-hidden">Výběr provozního dne a části dne</h2>
+      <div class="day-navigation" aria-label="Navigace provozních dnů">
+        <button class="day-navigation__arrow" type="button" data-day-previous aria-label="Předchozí dostupný provozní den"{% if not navigation.previous %} disabled{% endif %}>‹</button>
+        <button class="day-navigation__current" type="button" data-day-picker aria-label="Vybrat provozní den" aria-controls="service-day-input">{% if selected_day == live.service_date %}DNES{% else %}{{ selected_date }}{% endif %}</button>
+        <button class="day-navigation__arrow" type="button" data-day-next aria-label="Následující dostupný provozní den"{% if not navigation.next %} disabled{% endif %}>›</button>
+        <label class="visually-hidden" for="service-day-input">Vyberte provozní den</label>
+        <input id="service-day-input" class="day-navigation__picker" type="date" value="{{ selected_day }}" data-day-input tabindex="-1" aria-hidden="true">
+      </div>
+      <p class="day-controls__state" data-day-state role="status" hidden></p>
+      <div class="period-presets" aria-label="Část provozního dne">
+        <button class="period-preset period-preset--active" type="button" data-period="all" aria-pressed="true">Celý den</button>
+        <button class="period-preset" type="button" data-period="morning" aria-pressed="false">Ráno</button>
+        <button class="period-preset" type="button" data-period="late_morning" aria-pressed="false">Dopoledne</button>
+        <button class="period-preset" type="button" data-period="afternoon" aria-pressed="false">Odpoledne</button>
+        <button class="period-preset" type="button" data-period="evening" aria-pressed="false">Večer</button>
+        <button class="period-preset" type="button" data-period="night" aria-pressed="false">Noc</button>
+      </div>
+
+      <div class="analytics-dashboard" aria-label="Analytika vybraného dne">
+        <section class="analytics-card analytics-card--summary" aria-labelledby="analytics-summary-title">
+          <h2 id="analytics-summary-title">Jak se jezdí</h2>
+          <dl class="analytics-summary">
+            <div class="analytics-summary__item analytics-summary__item--primary">
+              <dt>Průměr</dt>
+              <dd data-analytics-value="average_delay">—</dd>
+            </div>
+            <div class="analytics-summary__item">
+              <dt>Medián</dt>
+              <dd data-analytics-value="median_delay">—</dd>
+            </div>
+            <div class="analytics-summary__item">
+              <dt>90. percentil</dt>
+              <dd data-analytics-value="percentile_90">—</dd>
+            </div>
+            <div class="analytics-summary__item">
+              <dt>Maximum</dt>
+              <dd data-analytics-value="maximum_delay">—</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="analytics-card analytics-card--distribution" aria-labelledby="analytics-distribution-title">
+          <h2 id="analytics-distribution-title">Rozložení zpoždění</h2>
+          <div class="delay-distribution">
+            <div class="delay-distribution__row">
+              <div class="delay-distribution__heading"><span>Předjetí</span><output data-distribution-value="early">—</output></div>
+              <div class="delay-distribution__track" aria-hidden="true"><span class="delay-distribution__fill" data-distribution-fill="early" style="width: 0%"></span></div>
+            </div>
+            <div class="delay-distribution__row">
+              <div class="delay-distribution__heading"><span>Včas</span><output data-distribution-value="on_time">—</output></div>
+              <div class="delay-distribution__track" aria-hidden="true"><span class="delay-distribution__fill" data-distribution-fill="on_time" style="width: 0%"></span></div>
+            </div>
+            <div class="delay-distribution__row">
+              <div class="delay-distribution__heading"><span>Mírné zpoždění</span><output data-distribution-value="mild_delay">—</output></div>
+              <div class="delay-distribution__track" aria-hidden="true"><span class="delay-distribution__fill" data-distribution-fill="mild_delay" style="width: 0%"></span></div>
+            </div>
+            <div class="delay-distribution__row">
+              <div class="delay-distribution__heading"><span>Větší zpoždění</span><output data-distribution-value="larger_delay">—</output></div>
+              <div class="delay-distribution__track" aria-hidden="true"><span class="delay-distribution__fill" data-distribution-fill="larger_delay" style="width: 0%"></span></div>
+            </div>
+            <div class="delay-distribution__row">
+              <div class="delay-distribution__heading"><span>Vysoké zpoždění</span><output data-distribution-value="high_delay">—</output></div>
+              <div class="delay-distribution__track" aria-hidden="true"><span class="delay-distribution__fill" data-distribution-fill="high_delay" style="width: 0%"></span></div>
+            </div>
+          </div>
+          <p class="analytics-card__state" data-analytics-state role="status" hidden></p>
+        </section>
+      </div>
+
+      <section class="dashboard-outliers" aria-labelledby="outliers-title">
+        <h2 id="outliers-title" class="dashboard-section-title">Co dnes vyčnívá</h2>
+        <div class="outliers-grid">
+          <article class="outlier-tile" data-worst-trip>
+            <h3>Nejhorší spoj</h3>
+            <p class="outlier-tile__primary" data-worst-trip-primary>—</p>
+            <p class="outlier-tile__value" data-worst-trip-delay hidden></p>
+            <p class="outlier-tile__meta" data-worst-trip-maximum-stop hidden></p>
+          </article>
+          <article class="outlier-tile">
+            <h3>Největší nárůst zpoždění</h3>
+            <p class="outlier-tile__primary" data-worst-segment-from>—</p>
+            <p class="outlier-tile__meta" data-worst-segment-to hidden></p>
+            <p class="outlier-tile__value" data-worst-segment-delay hidden></p>
+            <p class="outlier-tile__meta" data-worst-segment-time hidden></p>
+          </article>
+          <article class="outlier-tile">
+            <h3>Největší předjetí</h3>
+            <p class="outlier-tile__primary" data-largest-early-primary>—</p>
+            <p class="outlier-tile__value" data-largest-early hidden></p>
+            <p class="outlier-tile__meta" data-largest-early-stop hidden></p>
+          </article>
+        </div>
+      </section>
+
+      <div class="dashboard-meta" aria-label="Provozní a datová metadata">
+        <section class="analytics-card dashboard-operations" aria-labelledby="operations-title">
+          <h2 id="operations-title">Provoz</h2>
+          <p class="dashboard-meta__primary" data-captured-planned data-captured-trips data-planned-trips>—</p>
+          <p class="dashboard-meta__label">spojů zachyceno</p>
+          <p class="dashboard-meta__secondary"><span data-vehicles>—</span><br><span>vozidel</span></p>
+          <p class="dashboard-meta__note" data-first-observed-wrap hidden>Sběr od <time data-first-observed>—</time></p>
+        </section>
+
+        <section class="analytics-card dashboard-data" aria-labelledby="data-title">
+          <h2 id="data-title">Data</h2>
+          <p class="dashboard-meta__primary" data-realtime-observations>—</p>
+          <p class="dashboard-meta__label">realtime pozorování</p>
+          <p class="dashboard-meta__secondary"><span data-last-observed>—</span><br><span>poslední data</span></p>
+          <p class="dashboard-meta__note"><span data-collector-interval>—</span><br><span>interval sběru</span></p>
+        </section>
+      </div>
+
+      <div class="methodology-control">
+        <button class="methodology-trigger" type="button" data-methodology-trigger aria-controls="methodology-dialog" aria-expanded="false">ⓘ Metodika</button>
+      </div>
+
+      <dialog id="methodology-dialog" class="methodology-dialog" aria-labelledby="methodology-title" data-methodology-dialog>
+        <div class="methodology-dialog__header">
+          <h2 id="methodology-title">Metodika</h2>
+          <button class="methodology-dialog__close" type="button" data-methodology-close aria-label="Zavřít metodiku">×</button>
+        </div>
+        <div class="methodology-dialog__content">
+          <section>
+            <h3>Realtime data</h3>
+            <p>Tunelbus vyhodnocuje provoz z průběžně sbíraných realtime pozorování autobusů linky 145.</p>
+          </section>
+          <section>
+            <h3>Včas</h3>
+            <p>Zpoždění menší než 180 sekund znamená včas: 179 s je včas, 180 s je zpožděný spoj. Předjetí se počítá jako včas.</p>
+          </section>
+          <section>
+            <h3>Rozložení zpoždění</h3>
+            <p>do 1 min: &lt; 60 s · 1–3 min: 60–179 s · 3–10 min: 180–599 s · nad 10 min: ≥ 600 s.</p>
+          </section>
+          <section>
+            <h3>Trend</h3>
+            <p>Trend porovnává dvě části přibližně posledních 30 minut a používá mediány, aby jednotlivé skoky neměly příliš velkou váhu.</p>
+          </section>
+          <section>
+            <h3>První testovací den</h3>
+            <p>Service day 16. 8. 2026 začal sběr během dne; chybějící ráno proto neznamená výpadek systému.</p>
+          </section>
+        </div>
+      </dialog>
+    </section>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script defer src="/static/live.js"></script>
+<script defer src="/static/day.js"></script>
+{% endblock %}

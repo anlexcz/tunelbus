@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}O projektu | Tunelbus{% endblock %}
+
+{% block content %}
+<section class="about-page" aria-labelledby="about-title">
+  <div class="site-shell about-page__content">
+    <header class="about-page__intro">
+      <p class="site-eyebrow">Tunelbus</p>
+      <h1 id="about-title">O projektu</h1>
+      <p class="about-page__lead">Tunelbus dlouhodobě sleduje, jak skutečně jezdí autobusová linka 145 mezi Dejvickou a Sídlištěm Čimice.</p>
+    </header>
+
+    <section class="about-section" aria-labelledby="about-what">
+      <h2 id="about-what">Co je Tunelbus</h2>
+      <p>Tunelbus je nezávislý datový projekt. Sleduje pravidelný provoz linky 145, porovnává plánovaný jízdní řád s realtime stavem a data dlouhodobě ukládá. Z nich vytváří veřejný přehled provozu a zpoždění.</p>
+      <p>Projekt sleduje provoz linky 145 mezi Dejvickou a Sídlištěm Čimice v obou směrech, bez ambice nahradit oficiální provozní informace.</p>
+    </section>
+
+    <section class="about-section" aria-labelledby="about-why">
+      <h2 id="about-why">Proč projekt vznikl</h2>
+      <p>Cestující obvykle vidí jeden konkrétní spoj. Tunelbus se snaží ukázat dlouhodobější obraz: kdy a kde zpoždění vzniká, jak často se opakuje a jak se provoz mění během dne.</p>
+    </section>
+
+    <section class="about-section" aria-labelledby="about-sources">
+      <h2 id="about-sources">Odkud jsou data</h2>
+      <div class="about-source-grid">
+        <section>
+          <h3>Jízdní řád</h3>
+          <p>Plánovaná data vycházejí z denních GTFS snapshotů PID. Projekt z nich používá spoje, plánované časy, zastávky a trasu.</p>
+        </section>
+        <section>
+          <h3>Realtime</h3>
+          <p>Průběžná data o provozu pocházejí z Golemio Vehicle Positions API a zachycují dostupná realtime pozorování vozidel linky 145.</p>
+        </section>
+      </div>
+    </section>
+
+    <section class="about-section" aria-labelledby="about-reading">
+      <h2 id="about-reading">Jak data číst</h2>
+      <ul class="about-list">
+        <li>Kladná hodnota znamená zpoždění, záporná hodnota předjetí proti jízdnímu řádu.</li>
+        <li>„Včas“ znamená zpoždění menší než 180 sekund.</li>
+        <li>Denní statistiky lze filtrovat podle části dne.</li>
+        <li>Tunelbus pracuje s provozním dnem: pozdně noční provoz po půlnoci může patřit k předchozímu dni.</li>
+      </ul>
+    </section>
+
+    <section class="about-section" aria-labelledby="about-limits">
+      <h2 id="about-limits">Omezení dat</h2>
+      <p>Realtime data nemusí být dostupná v každém okamžiku a některá pozorování mohou chybět. Chybějící údaj proto automaticky neznamená, že spoj nejel; přesnost výsledku závisí na dostupnosti vstupních realtime dat.</p>
+      <p>První testovací service day 16. 8. 2026 začal sběr až v průběhu dne, takže chybějící ranní data nejsou interpretována jako výpadek systému.</p>
+      <p>Tunelbus není oficiální provozní informační systém PID, DPP, ROPID ani Magistrátu hl. m. Prahy. Nabízí analytický a dlouhodobý pohled, ne podklad pro okamžité rozhodnutí, zda konkrétní spoj právě přijede.</p>
+    </section>
+
+    <section class="about-section about-section--contact" aria-labelledby="about-owner">
+      <h2 id="about-owner">Kdo za tím stojí</h2>
+      <p>Tunelbus provozuje Anlex.</p>
+      <p>Připomínky k datům, nalezené chyby nebo dotazy k projektu lze poslat na <a href="mailto:mail@anlex.cz">mail@anlex.cz</a>.</p>
+    </section>
+  </div>
+</section>
+{% endblock %}

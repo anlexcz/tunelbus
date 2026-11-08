@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Tunelbus{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+  {% block head_assets %}{% endblock %}
+</head>
+<body>
+  <a class="site-skip-link" href="#main-content">Přeskočit na obsah</a>
+  <header class="site-header">
+    <div class="site-shell site-header__inner">
+      <a class="site-brand" href="/" aria-label="Tunelbus – domů">
+        <span class="site-brand__name">TUNELBUS</span>
+        <span class="site-brand__tagline">Jak to jezdí?</span>
+      </a>
+      <button class="site-menu-button" type="button" aria-label="Otevřít navigaci" aria-controls="site-navigation" aria-expanded="false">
+        <span class="site-menu-button__line"></span>
+        <span class="site-menu-button__line"></span>
+        <span class="site-menu-button__line"></span>
+      </button>
+      <nav id="site-navigation" class="site-nav" aria-label="Hlavní navigace">
+        <a href="/about"{% if active_page == "about" %} aria-current="page"{% endif %}>O projektu</a>
+        <a href="/history"{% if active_page == "history" %} aria-current="page"{% endif %}>Historie zpoždění</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main-content" class="site-main">
+    {% block content %}{% endblock %}
+  </main>
+  <script defer src="/static/site.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
