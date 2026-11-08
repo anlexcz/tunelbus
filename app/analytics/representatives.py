@@ -267,7 +267,13 @@ def interval_trip_representatives(day_data: DayRepresentatives, settings: Settin
             stop_by_trip[stop.trip_id].append(stop)
     representatives: list[TripRepresentative] = []
     for trip in planned:
-        selected = sorted(stop_by_trip.get(trip.trip_id, ()), key=lambda value: value.stop_sequence)
+        # Preserve every raw/stop observation. A proven conflict is unsuitable for
+        # public aggregates, but remains available for diagnostics and exports.
+        selected = sorted(
+            (value for value in stop_by_trip.get(trip.trip_id, ())
+             if "delay_vs_last_stop_conflict" not in value.flags),
+            key=lambda value: value.stop_sequence,
+        )
         if trip.trip_id not in day_data.structurally_usable_trip_ids or not selected:
             continue
         last = selected[-1]
