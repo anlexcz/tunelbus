@@ -1,0 +1,12 @@
+[Unit]
+Description=Tunelbus trolleybus daily raw export to Google Drive
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=anlex
+WorkingDirectory=/srv/anlex/tunelbus
+EnvironmentFile=/srv/anlex/tunelbus/.env
+ExecStart=/bin/bash /srv/anlex/tunelbus/scripts/trolleybus-daily-upload.sh
+NoNewPrivileges=true
