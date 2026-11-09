@@ -9,7 +9,7 @@ User=anlex
 WorkingDirectory=/srv/anlex/tunelbus-trolleybus
 EnvironmentFile=/srv/anlex/tunelbus/.env
 Environment=PYTHONUNBUFFERED=1
-ExecStart=/srv/anlex/tunelbus/.venv/bin/python -m app.trolleybus collect --db /srv/anlex/tunelbus/data/trolleybus.sqlite3 --routes 51,52,53,58 --interval 30
+ExecStart=/srv/anlex/tunelbus/.venv/bin/python -m app.trolleybus collect --db /srv/anlex/tunelbus-trolleybus/data/trolleybus.sqlite3 --routes 51,52,53,58 --interval 30
 Restart=always
 RestartSec=15
 NoNewPrivileges=true
