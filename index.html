@@ -102,7 +102,7 @@ setText(document.getElementById('home-percent'),share===null?'—':share+' %');
 setText(document.getElementById('home-verdict'),share===null?'Nemáme dost dat':share>=80?'Většina spojů jela včas':share>=50?'Provoz měl častější zpoždění':'Většina spojů měla zpoždění');
 setText(document.getElementById('home-median'),fmtSeconds(a.median_delay));
 setText(document.getElementById('home-coverage'),planned?known+' / '+planned:'—');
-setText(document.getElementById('home-coverage-note'),planned?'z '+planned+' plánovaných spojů':'Zatím nelze určit pokrytí');
+setText(document.getElementById('home-coverage-note'),planned?'z plánovaných spojů':'Zatím nelze určit pokrytí');
 
 updatePanelKpi('live',0,fmtSeconds(a.average_delay));updatePanelKpi('live',1,(a.within_3_minutes??'—')+' %');updatePanelKpi('live',2,String(a.usable_trips));updatePanelKpi('live',3,String(a.vehicles));
 updatePanelKpi('day',0,fmtSeconds(a.average_delay));updatePanelKpi('day',1,fmtSeconds(a.median_delay));updatePanelKpi('day',2,fmtSeconds(a.percentile_90));updatePanelKpi('day',3,(a.coverage_percentage??'—')+' %');
