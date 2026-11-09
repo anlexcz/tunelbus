@@ -6,7 +6,7 @@ Headless raw-data collection only. No UI, public API, or analytics.
 - Routes configured via TROLLEYBUS_ROUTES (default 51,52,53,58); route 59 explicitly forbidden.
 - Replacement buses are included because filtering is by line rather than vehicle type.
 - Observations retain source JSON, source timestamp, fetched timestamp, delay, vehicle identity and trip.
-- Run alongside Tunelbus 145, using **a separate SQLite database**.
+- Run alongside Tunelbus 145, using **a separate SQLite database**. The service template uses a separate Git worktree `/srv/anlex/tunelbus-trolleybus` and the existing venv and protected `.env` file. Do not start a service against code not deployed at that path.
 - No automatic deletion until daily cloud uploads and independent backups have been verified.
 - The route roster must be checked against the actual PID timetable before production.
 
@@ -42,7 +42,7 @@ rclone copyto /srv/anlex/tunelbus/trolleybus_exports/trolleybus_YYYY-MM-DD.jsonl
 
 Do not automate this example as-is until folder targeting, timer, service accounts, timezone and rclone permissions are tested.
 
-**Important limitation:** This first implementation archives raw realtime observations. It does not yet archive the matching historical GTFS timetable, identify vehicle type, or expose an explicit course/order number. Those are prerequisites for reliable downstream vehicle-type analysis and should be added before long-term collection is considered complete.
+**Data fields:** The archive preserves the original Golemio feature. Indexed SQLite columns include `origin_route_name` + `trip_sequence_id` (operational route/order), vehicle registration, vehicle type ID and Czech description (`trip.vehicle_type`), GTFS trip ID, timestamps and actual delay. The vehicle type is a **Golemio-reported type**, not independently verified physical vehicle type. This allows observing replacement buses when returned on a monitored line.\n\n**Important limitation:** This implementation does not yet archive matching historical GTFS schedules. The exact `source_timestamp` freshness and API coverage need longer live observation before production is considered validated.
 
 ## Integrity / safety
 - Existing production tables for line 145 are not modified.
