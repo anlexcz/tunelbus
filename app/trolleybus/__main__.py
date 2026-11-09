@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS observations (
  source_timestamp TEXT,
  route_short_name TEXT NOT NULL,
  trip_id TEXT,
+ trip_sequence_id INTEGER,
+ cis_trip_number TEXT,
  vehicle_id TEXT,
  vehicle_registration_number TEXT,
  delay_actual INTEGER,
@@ -71,6 +73,22 @@ def open_db(path: str):
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.executescript(SCHEMA)
+    existing = {row[1] for row in conn.execute("PRAGMA table_info(observations)")}
+    with conn:
+        if "trip_sequence_id" not in existing:
+            conn.execute("ALTER TABLE observations ADD COLUMN trip_sequence_id INTEGER")
+        if "cis_trip_number" not in existing:
+            conn.execute("ALTER TABLE observations ADD COLUMN cis_trip_number TEXT")
+        for item in conn.execute("SELECT id,raw_payload FROM observations WHERE trip_sequence_id IS NULL AND cis_trip_number IS NULL").fetchall():
+            try:
+                feature = json.loads(item["raw_payload"])
+                props = feature.get("properties", feature)
+                trip = props.get("trip") or {}
+                cis = trip.get("cis") or {}
+                conn.execute("UPDATE observations SET trip_sequence_id=?,cis_trip_number=? WHERE id=?",
+                             (trip.get("sequence_id"), cis.get("trip_number"), item["id"]))
+            except (TypeError, ValueError, AttributeError):
+                LOG.warning("Cannot backfill trip sequence for observation %s", item["id"])
     return conn
 
 
@@ -109,14 +127,16 @@ def collect_once(conn, http: requests.Session, route: str, api_key: str):
         with conn:
             for row in parsed:
                 # Keep the original source feature, not derived metrics or web statistics.
+                trip = json.loads(row["raw_payload"]).get("properties", {}).get("trip") or {}
+                cis = trip.get("cis") or {}
                 conn.execute(
                     """INSERT OR IGNORE INTO observations
                     (observed_at,service_date,source_timestamp,route_short_name,trip_id,
-                     vehicle_id,vehicle_registration_number,delay_actual,latitude,
+                     trip_sequence_id,cis_trip_number,vehicle_id,vehicle_registration_number,delay_actual,latitude,
                      longitude,raw_payload,payload_hash)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     (row["observed_at"], service_date(now), row["source_timestamp"],
-                     route, row["trip_id"], row["vehicle_id"],
+                     route, row["trip_id"], trip.get("sequence_id"), cis.get("trip_number"), row["vehicle_id"],
                      row["vehicle_registration_number"], row["delay_actual"],
                      row["latitude"], row["longitude"], row["raw_payload"],
                      row["payload_hash"]),
