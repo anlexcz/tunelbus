@@ -77,3 +77,32 @@ Tato dokumentace platí pro testovací větev `design/tunelbus-light-preview`.
 **Omezení:** bez zpětného vyhodnocení celé archivní SQLite databáze a
 spuštění automatických testů nelze tvrdit, že všechny historické statistiky
 jsou nyní plně odladěné. Tyto testy jsou podmínkou produkčního nasazení.
+
+
+## Kontrola na skutečných datech 7. 11. 2026
+
+Podklady: 2 233 řádků GTFS stop_times, 4 657 realtime pozorování za
+provozní den od 03:00 do 03:00 dalšího dne; celkem 142 plánovaných spojů.
+
+| Metrika | Před validací | Po validaci |
+| --- | ---: | ---: |
+| Použitelné spoje | 142 | 142 |
+| Průměrné zpoždění | 73 s | 73 s |
+| Medián | 50 s | 50 s |
+| P90 | 162 s | 162 s |
+| Včasnost | 91 % | 91 % |
+| Nejdokonalejší extrém na úseku Dejvická → Vítězné náměstí | +1 233 s | +162 s |
+| Medián změny zpoždění na tomtéž úseku | +74 s | +71 s |
+| Počet měření daného úseku v souhrnu | 68 | 67 |
+
+Ve všech datech bylo vyřazeno z veřejné agregace **jedno konfliktující
+zastávkové reprezentativní měření**; počet vyřazených izolovaných skoků je
+v tento den nula. Původní záznam se zachovává v raw archivu.
+
+Spoj `145_1320_261003` (7:50 Dejvická) měl před validací medián
++41 sekund, po validaci +46 sekund. Jeho čekání na výchozí zastávce
+nemění platnost zbylých 15 zastávkových reprezentantů.
+
+Náhledové `preview-data.json` obsahuje přepočtené údaje a také oddělené
+`source_api_analytics` a `source_api_segments` s původními výsledky
+pro kontrolu rozdílu. Výsledky se nevztahují automaticky na ostatní dny.
