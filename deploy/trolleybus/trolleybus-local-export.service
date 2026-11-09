@@ -1,0 +1,11 @@
+[Unit]
+Description=Tunelbus trolleybus completed service-day local JSONL export
+After=local-fs.target
+
+[Service]
+Type=oneshot
+User=anlex
+WorkingDirectory=/srv/anlex/tunelbus-trolleybus
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/bin/bash /srv/anlex/tunelbus-trolleybus/scripts/trolleybus-local-export.sh
+NoNewPrivileges=true
