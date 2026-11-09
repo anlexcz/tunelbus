@@ -195,9 +195,10 @@ function display(){
   const page=dayMatch?'day':(['live','history','day','trip','about'].includes(hash)?hash:'live');
   document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===page));
   document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('active',a.dataset.nav===(page==='day'||page==='trip'?'history':page==='live'?'live':page)));
+  if(page!=='history'&&replayTimer){clearInterval(replayTimer);replayTimer=null;const toggle=document.getElementById('replay-toggle');if(toggle){toggle.textContent='▶ Přehrát';toggle.setAttribute('aria-pressed','false');}}
   if(page==='day')renderDay(dayMatch?dayMatch[1]:selectedDay);
-  if(page==='live'){updatePublic();updateReplay();}
-  if(page==='history')renderHistory();
+  if(page==='live')updatePublic();
+  if(page==='history'){renderHistory();updateReplay();}
   if(page==='trip'){document.querySelector('#trip .pagehead .eyebrow a').href=urlForDay('2026-11-07');}
   window.scrollTo(0,0);
   document.title=(page==='day'?dayName(selectedDay):page==='history'?'Historie týdne':page==='live'?'Přehled provozu':page==='trip'?'Detail spoje':'O projektu')+' | Tunelbus – test';
