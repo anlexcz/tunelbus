@@ -261,39 +261,56 @@ def interval_trip_representatives(day_data: DayRepresentatives, settings: Settin
             from_offset, to_offset = to_offset, from_offset
         start_seconds, end_seconds = from_offset * 3600, min((to_offset + 1) * 3600, 24 * 3600)
     planned = [trip for trip in day_data.planned_trips if trip.start_seconds is not None and trip.end_seconds is not None and trip.start_seconds < end_seconds and trip.end_seconds >= start_seconds]
-    stop_by_trip: dict[str, list[StopRepresentative]] = defaultdict(list)
+    # Validation uses the whole trip, not just the requested hour window, so
+    # the same stop is never valid in one view and invalid in another.
+    all_by_trip: dict[str, list[StopRepresentative]] = defaultdict(list)
     for stop in day_data.stop_values:
-        if stop.scheduled_seconds is not None and start_seconds <= stop.scheduled_seconds < end_seconds:
-            stop_by_trip[stop.trip_id].append(stop)
+        all_by_trip[stop.trip_id].append(stop)
+
     representatives: list[TripRepresentative] = []
     for trip in planned:
-        # Preserve every raw/stop observation. A proven conflict is unsuitable for
-        # public aggregates, but remains available for diagnostics and exports.
-        selected = sorted(
-            (value for value in stop_by_trip.get(trip.trip_id, ())
-             if "delay_vs_last_stop_conflict" not in value.flags),
-            key=lambda value: value.stop_sequence,
-        )
-        # A single implausible spike bracketed by normal adjacent stops is
-        # diagnostically retained but does not distort public aggregates.
-        isolated_spikes = {
+        all_stops = sorted(all_by_trip.get(trip.trip_id, ()), key=lambda s: s.stop_sequence)
+        valid = [
+            value for value in all_stops
+            if "delay_vs_last_stop_conflict" not in value.flags
+        ]
+        # Guard against a single isolated numerical spike, in either direction.
+        # Persistent large delays are never excluded by their magnitude.
+        isolated = {
             current.observation_id
-            for before, current, after in zip(selected, selected[1:], selected[2:])
+            for before, current, after in zip(valid, valid[1:], valid[2:])
             if before.stop_sequence + 1 == current.stop_sequence
             and current.stop_sequence + 1 == after.stop_sequence
-            and ((current.delay > 600 and -60 <= before.delay <= 180 and -60 <= after.delay <= 180)
-                 or (current.delay < -600 and -60 <= before.delay <= 180 and -60 <= after.delay <= 180))
+            and abs(current.delay) > 600
+            and -60 <= before.delay < 180
+            and -60 <= after.delay < 180
         }
-        if isolated_spikes:
-            selected = [v for v in selected if v.observation_id not in isolated_spikes]
-        if trip.trip_id not in day_data.structurally_usable_trip_ids or not selected:
+        valid = [value for value in valid if value.observation_id not in isolated]
+        # Do not count a trip with only one trustworthy measured stop.
+        if trip.trip_id not in day_data.structurally_usable_trip_ids or len(valid) < 2:
+            continue
+        selected = [
+            value for value in valid
+            if value.scheduled_seconds is not None
+            and start_seconds <= value.scheduled_seconds < end_seconds
+        ]
+        if not selected:
             continue
         last = selected[-1]
-        registration = next((value.vehicle_registration_number for value in reversed(selected) if value.vehicle_registration_number), None)
-        flags = set().union(*(value.flags for value in selected))
-        flags.update(trip_flags(selected, list(day_data.observed_sequences.get(trip.trip_id, ()))))
+        registration = next(
+            (value.vehicle_registration_number for value in reversed(selected)
+             if value.vehicle_registration_number),
+            None,
+        )
+        flags = set().union(*(value.flags for value in all_stops))
+        if isolated:
+            flags.add("isolated_spike_excluded")
+        flags.update(trip_flags(all_stops, list(day_data.observed_sequences.get(trip.trip_id, ()))))
         delays = [value.delay for value in selected]
-        representatives.append(TripRepresentative(trip, tuple(selected), median(delays), last.delay, max(delays), min(delays), len(selected), registration, frozenset(flags)))
+        representatives.append(TripRepresentative(
+            trip, tuple(selected), median(delays), last.delay,
+            max(delays), min(delays), len(selected), registration, frozenset(flags),
+        ))
     return planned, representatives, start_seconds, end_seconds
 
 
