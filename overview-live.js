@@ -76,15 +76,31 @@ function paint(data,isArchive){
  paintMap(r,v,stale);
 }
 async function fetchJSON(url){const response=await fetch(url,{mode:'cors',cache:'no-store',signal:AbortSignal.timeout(8500)});if(!response.ok)throw Error('HTTP '+response.status);return response.json();}
+async function loadToday(day){
+ if(!day)return;
+ set('today-date',new Date(day+'T12:00:00').toLocaleDateString('cs-CZ',{day:'numeric',month:'long'}));
+ try{
+   const a=await fetchJSON(API_BASE+'/api/day/'+encodeURIComponent(day)+'/analytics');
+   const ontime=a.within_3_minutes,median=a.median_delay;
+   set('today-ontime',ontime===null||ontime===undefined?'—':ontime+' %');
+   set('today-median',fmt(median));
+   set('today-trips',a.usable_trips===null||a.usable_trips===undefined?'—':a.usable_trips+' / '+a.planned_trips);
+   set('today-note','Dnešní údaje jsou průběžné. Včasnost vychází z reprezentativních odchylek spojů, nikoliv z potvrzených odjezdů.');
+ }catch(err){
+   set('today-ontime','—');set('today-median','—');set('today-trips','—');
+   set('today-note','Dnešní souhrn není v testovacím náhledu dostupný. Historické údaje najdeš v sekci Historie.');
+ }
+}
 let archiveLoaded=false;
 async function loadLive(){
  try{
    const [summary,vehicles,route]=await Promise.all([fetchJSON(API_BASE+'/api/live/summary'),fetchJSON(API_BASE+'/api/live/vehicles'),routeReady?Promise.resolve(null):fetchJSON(API_BASE+'/api/live/route')]);
    paint({summary,vehicles,route},false);
+   loadToday(summary.service_date);
  }catch(err){
    if(!archiveLoaded){
      archiveLoaded=true;
-     try{const sample=await fetchJSON('live-snapshot-preview.json');paint(sample,true);}
+     try{const sample=await fetchJSON('live-snapshot-preview.json');paint(sample,true);set('today-note','Dnešní provozní statistiky nejsou dostupné. Mapa ukazuje archivní snímek, nikoli aktuální polohy.');}
      catch(error){const e=$('live-availability');if(e){e.classList.add('live-stale');e.textContent='Živá data ani archivní snímek se nepodařilo načíst.';}set('live-source-state','DATA NEDOSTUPNÁ');}
    }
    console.info('Preview live API not available:',err.message);
