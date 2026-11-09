@@ -32,6 +32,8 @@ CREATE TABLE IF NOT EXISTS observations (
  trip_sequence_id INTEGER,
  origin_route_name TEXT,
  cis_trip_number TEXT,
+ vehicle_type_id INTEGER,
+ vehicle_type_description_cs TEXT,
  vehicle_id TEXT,
  vehicle_registration_number TEXT,
  delay_actual INTEGER,
@@ -75,23 +77,39 @@ def open_db(path: str):
     conn.execute("PRAGMA journal_mode=WAL")
     conn.executescript(SCHEMA)
     existing = {row[1] for row in conn.execute("PRAGMA table_info(observations)")}
+    additions = {
+        "trip_sequence_id": "INTEGER",
+        "origin_route_name": "TEXT",
+        "cis_trip_number": "TEXT",
+        "vehicle_type_id": "INTEGER",
+        "vehicle_type_description_cs": "TEXT",
+    }
+    added = []
     with conn:
-        if "trip_sequence_id" not in existing:
-            conn.execute("ALTER TABLE observations ADD COLUMN trip_sequence_id INTEGER")
-        if "origin_route_name" not in existing:
-            conn.execute("ALTER TABLE observations ADD COLUMN origin_route_name TEXT")
-        if "cis_trip_number" not in existing:
-            conn.execute("ALTER TABLE observations ADD COLUMN cis_trip_number TEXT")
-        for item in conn.execute("SELECT id,raw_payload FROM observations WHERE trip_sequence_id IS NULL OR origin_route_name IS NULL OR cis_trip_number IS NULL").fetchall():
-            try:
-                feature = json.loads(item["raw_payload"])
-                props = feature.get("properties", feature)
-                trip = props.get("trip") or {}
-                cis = trip.get("cis") or {}
-                conn.execute("UPDATE observations SET trip_sequence_id=?,origin_route_name=?,cis_trip_number=? WHERE id=?",
-                             (trip.get("sequence_id"), trip.get("origin_route_name"), cis.get("trip_number"), item["id"]))
-            except (TypeError, ValueError, AttributeError):
-                LOG.warning("Cannot backfill trip sequence for observation %s", item["id"])
+        for name, sql_type in additions.items():
+            if name not in existing:
+                conn.execute(f"ALTER TABLE observations ADD COLUMN {name} {sql_type}")
+                added.append(name)
+        # Backfill only when schema changes; null CIS trip numbers are normal.
+        if added:
+            for item in conn.execute("SELECT id, raw_payload FROM observations").fetchall():
+                try:
+                    feature = json.loads(item["raw_payload"])
+                    trip = (feature.get("properties") or feature).get("trip") or {}
+                    vehicle_type = trip.get("vehicle_type") or {}
+                    cis = trip.get("cis") or {}
+                vehicle_type = trip.get("vehicle_type") or {}
+                    conn.execute(
+                        """UPDATE observations SET
+                           trip_sequence_id=?, origin_route_name=?, cis_trip_number=?,
+                           vehicle_type_id=?, vehicle_type_description_cs=?
+                           WHERE id=?""",
+                        (trip.get("sequence_id"), trip.get("origin_route_name"),
+                         cis.get("trip_number"), vehicle_type.get("id"),
+                         vehicle_type.get("description_cs"), item["id"]),
+                    )
+                except (TypeError, ValueError, AttributeError):
+                    LOG.warning("Cannot backfill raw observation id=%s", item["id"])
     return conn
 
 
@@ -135,11 +153,12 @@ def collect_once(conn, http: requests.Session, route: str, api_key: str):
                 conn.execute(
                     """INSERT OR IGNORE INTO observations
                     (observed_at,service_date,source_timestamp,route_short_name,trip_id,
-                     trip_sequence_id,origin_route_name,cis_trip_number,vehicle_id,vehicle_registration_number,delay_actual,latitude,
+                     trip_sequence_id,origin_route_name,cis_trip_number,vehicle_type_id,vehicle_type_description_cs,vehicle_id,vehicle_registration_number,delay_actual,latitude,
                      longitude,raw_payload,payload_hash)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     (row["observed_at"], service_date(now), row["source_timestamp"],
-                     route, row["trip_id"], trip.get("sequence_id"), trip.get("origin_route_name"), cis.get("trip_number"), row["vehicle_id"],
+                     route, row["trip_id"], trip.get("sequence_id"), trip.get("origin_route_name"), cis.get("trip_number"),
+                     vehicle_type.get("id"), vehicle_type.get("description_cs"), row["vehicle_id"],
                      row["vehicle_registration_number"], row["delay_actual"],
                      row["latitude"], row["longitude"], row["raw_payload"],
                      row["payload_hash"]),
@@ -232,12 +251,23 @@ def main():
         if args.command == "collect":
             collect(conn, routes, args.interval)
         elif args.command == "export":
-            day = args.date or (datetime.now(ZoneInfo("Europe/Prague")).date() - timedelta(days=1)).isoformat()
+            day = args.date or (datetime.fromisoformat(service_date(datetime.now(timezone.utc))).date() - timedelta(days=1)).isoformat()
             export_day(conn, day, args.output)
         else:
             last = conn.execute("SELECT started_at,status FROM poll_runs ORDER BY id DESC LIMIT 1").fetchone()
             total = conn.execute("SELECT count(*) FROM observations").fetchone()[0]
-            print(json.dumps({"routes":routes,"rows":total,"last_poll":dict(last) if last else None}, ensure_ascii=False))
+            by_route = [dict(row) for row in conn.execute(
+                "SELECT route_short_name AS route,COUNT(*) AS rows,"
+                "MAX(observed_at) AS last_observed_at,"
+                "COUNT(DISTINCT origin_route_name || '/' || trip_sequence_id) AS orders,"
+                "SUM(CASE WHEN trip_sequence_id IS NULL OR origin_route_name IS NULL THEN 1 ELSE 0 END) AS missing_order,"
+                "SUM(CASE WHEN vehicle_registration_number IS NULL THEN 1 ELSE 0 END) AS missing_vehicle,"
+                "SUM(CASE WHEN vehicle_type_id IS NULL THEN 1 ELSE 0 END) AS missing_vehicle_type "
+                "FROM observations GROUP BY route_short_name ORDER BY route_short_name"
+            )]
+            print(json.dumps({"configured_routes":routes,"rows":total,
+                              "last_poll":dict(last) if last else None,
+                              "by_route":by_route}, ensure_ascii=False))
     finally:
         conn.close()
 
