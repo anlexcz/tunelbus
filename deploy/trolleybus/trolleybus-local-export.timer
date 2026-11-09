@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily local trolleybus archive at 03:15 Europe/Prague
+
+[Timer]
+OnCalendar=*-*-* 03:15:00 Europe/Prague
+Persistent=true
+Unit=trolleybus-local-export.service
+
+[Install]
+WantedBy=timers.target
