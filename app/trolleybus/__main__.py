@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS observations (
  route_short_name TEXT NOT NULL,
  trip_id TEXT,
  trip_sequence_id INTEGER,
+ origin_route_name TEXT,
  cis_trip_number TEXT,
  vehicle_id TEXT,
  vehicle_registration_number TEXT,
@@ -77,16 +78,18 @@ def open_db(path: str):
     with conn:
         if "trip_sequence_id" not in existing:
             conn.execute("ALTER TABLE observations ADD COLUMN trip_sequence_id INTEGER")
+        if "origin_route_name" not in existing:
+            conn.execute("ALTER TABLE observations ADD COLUMN origin_route_name TEXT")
         if "cis_trip_number" not in existing:
             conn.execute("ALTER TABLE observations ADD COLUMN cis_trip_number TEXT")
-        for item in conn.execute("SELECT id,raw_payload FROM observations WHERE trip_sequence_id IS NULL AND cis_trip_number IS NULL").fetchall():
+        for item in conn.execute("SELECT id,raw_payload FROM observations WHERE trip_sequence_id IS NULL OR origin_route_name IS NULL OR cis_trip_number IS NULL").fetchall():
             try:
                 feature = json.loads(item["raw_payload"])
                 props = feature.get("properties", feature)
                 trip = props.get("trip") or {}
                 cis = trip.get("cis") or {}
-                conn.execute("UPDATE observations SET trip_sequence_id=?,cis_trip_number=? WHERE id=?",
-                             (trip.get("sequence_id"), cis.get("trip_number"), item["id"]))
+                conn.execute("UPDATE observations SET trip_sequence_id=?,origin_route_name=?,cis_trip_number=? WHERE id=?",
+                             (trip.get("sequence_id"), trip.get("origin_route_name"), cis.get("trip_number"), item["id"]))
             except (TypeError, ValueError, AttributeError):
                 LOG.warning("Cannot backfill trip sequence for observation %s", item["id"])
     return conn
@@ -132,11 +135,11 @@ def collect_once(conn, http: requests.Session, route: str, api_key: str):
                 conn.execute(
                     """INSERT OR IGNORE INTO observations
                     (observed_at,service_date,source_timestamp,route_short_name,trip_id,
-                     trip_sequence_id,cis_trip_number,vehicle_id,vehicle_registration_number,delay_actual,latitude,
+                     trip_sequence_id,origin_route_name,cis_trip_number,vehicle_id,vehicle_registration_number,delay_actual,latitude,
                      longitude,raw_payload,payload_hash)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     (row["observed_at"], service_date(now), row["source_timestamp"],
-                     route, row["trip_id"], trip.get("sequence_id"), cis.get("trip_number"), row["vehicle_id"],
+                     route, row["trip_id"], trip.get("sequence_id"), trip.get("origin_route_name"), cis.get("trip_number"), row["vehicle_id"],
                      row["vehicle_registration_number"], row["delay_actual"],
                      row["latitude"], row["longitude"], row["raw_payload"],
                      row["payload_hash"]),
