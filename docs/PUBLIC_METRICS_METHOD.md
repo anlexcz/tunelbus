@@ -91,7 +91,7 @@ provozní den od 03:00 do 03:00 dalšího dne; celkem 142 plánovaných spojů.
 | Medián | 50 s | 50 s |
 | P90 | 162 s | 162 s |
 | Včasnost | 91 % | 91 % |
-| Nejdokonalejší extrém na úseku Dejvická → Vítězné náměstí | +1 233 s | +162 s |
+| Největší nárůst zpoždění na úseku Dejvická → Vítězné náměstí | +1 233 s | +162 s |
 | Medián změny zpoždění na tomtéž úseku | +74 s | +71 s |
 | Počet měření daného úseku v souhrnu | 68 | 67 |
 
