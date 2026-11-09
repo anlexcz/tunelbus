@@ -15,7 +15,7 @@ DELAY_CLASSES = ("early", "on_time", "mild_delay", "larger_delay", "high_delay")
 def classify_delay(delay: int | float) -> str:
     if delay < -60:
         return "early"
-    if delay <= 180:
+    if delay < 180:
         return "on_time"
     if delay <= 360:
         return "mild_delay"
@@ -115,9 +115,9 @@ def day_metrics(db: Database, settings: Settings, day: str, from_offset: int | N
         "median_delay": _round(median(delays)) if delays else None,
         "maximum_delay": _round(max(delays)) if delays else None,
         "minimum_delay": _round(min(delays)) if delays else None,
-        "within_1_minute": round(sum(delay <= 60 for delay in delays) * 100 / count) if count else None,
-        "within_3_minutes": round(sum(delay <= 180 for delay in delays) * 100 / count) if count else None,
-        "within_5_minutes": round(sum(delay <= 300 for delay in delays) * 100 / count) if count else None,
+        "within_1_minute": round(sum(-60 <= delay < 60 for delay in delays) * 100 / count) if count else None,
+        "within_3_minutes": round(sum(classify_delay(delay) == "on_time" for delay in delays) * 100 / count) if count else None,
+        "within_5_minutes": round(sum(-60 <= delay <= 300 for delay in delays) * 100 / count) if count else None,
         "over_10_minutes": round(sum(delay > 600 for delay in delays) * 100 / count) if count else None,
         "percentile_90": _round(percentile_90(delays)), "delay_distribution": distribution,
         "coverage_percentage": coverage, "coverage_status": coverage_status(coverage),
