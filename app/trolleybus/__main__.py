@@ -98,7 +98,6 @@ def open_db(path: str):
                     trip = (feature.get("properties") or feature).get("trip") or {}
                     vehicle_type = trip.get("vehicle_type") or {}
                     cis = trip.get("cis") or {}
-                vehicle_type = trip.get("vehicle_type") or {}
                     conn.execute(
                         """UPDATE observations SET
                            trip_sequence_id=?, origin_route_name=?, cis_trip_number=?,
