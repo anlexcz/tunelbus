@@ -149,6 +149,7 @@ def collect_once(conn, http: requests.Session, route: str, api_key: str):
                 # Keep the original source feature, not derived metrics or web statistics.
                 trip = json.loads(row["raw_payload"]).get("properties", {}).get("trip") or {}
                 cis = trip.get("cis") or {}
+                vehicle_type = trip.get("vehicle_type") or {}
                 conn.execute(
                     """INSERT OR IGNORE INTO observations
                     (observed_at,service_date,source_timestamp,route_short_name,trip_id,
