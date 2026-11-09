@@ -1,5 +1,5 @@
 [Unit]
-Description=Tunelbus trolleybus daily raw export to Google Drive
+Description=Tunelbus trolleybus daily raw export to Google Drive (do not enable until OAuth verified)
 After=network-online.target
 Wants=network-online.target
 
