@@ -121,6 +121,29 @@ main{max-width:1350px;margin:auto;padding:34px 28px 90px}.page{display:none}.pag
 .replay-dist+.replay-explain{margin:15px 0 16px}
 @media(max-width:900px){.replay-main,.replay-main.replay-second{grid-template-columns:1fr}.replay-bar{flex-direction:column;align-items:stretch}.replay-controls{justify-content:space-between}.replay-controls input{width:auto;flex:1}.replay-metrics{grid-template-columns:repeat(2,1fr)}.replay-stat:nth-child(2){border-right:0}.replay-stat:nth-child(-n+2){border-bottom:1px solid var(--line)}}
 @media(max-width:600px){.replay-stat{padding:14px}.replay-stat strong{font-size:25px}.replay-stat span{font-size:8px}.replay-card{padding:18px 15px}.replay-card h2{font-size:17px}.replay-hours{height:165px}.replay-bar{padding:13px}.replay-controls{gap:9px}.replay-controls input{min-width:55px}.replay-button{font-size:10px;padding:9px}.replay-legend{font-size:9px}}
+</style><style>
+.live-overview{margin:18px 0 30px}.live-head,.live-events-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 13px}
+.live-head h2{font-size:25px;letter-spacing:-.045em;margin:5px 0}.live-source{text-align:right;font-size:11px;font-weight:800;color:#005682}.live-source small{display:block;color:#81929f;font-size:10px;font-weight:500;margin-top:5px}
+.live-availability{font-size:11px;color:#596e7c;background:#eaf1f5;border-left:3px solid #005682;padding:10px 14px;line-height:1.55;margin-bottom:12px}
+.live-availability.live-stale{border-color:#b4822e;background:#fcf5e9;color:#795d27}
+.live-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #dce3e8;background:white;margin-bottom:13px}
+.live-stats>div{padding:18px 19px;border-right:1px solid #dce3e8;min-width:0}.live-stats>div:last-child{border:0}.live-stats span{display:block;font-size:9px;letter-spacing:.07em;color:#708390;font-weight:800}
+.live-stats strong{font-size:28px;font-weight:800;letter-spacing:-.05em;display:block;margin:9px 0 5px;color:#19232c}.live-stats small{font-size:10px;color:#7a8d99;line-height:1.45}
+.live-map-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(250px,.85fr);gap:13px}.live-map-wrap,.live-vehicle-wrap,.live-events{background:white;border:1px solid #dce3e8;min-width:0}
+.live-map-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 17px;border-bottom:1px solid #e7edf0;font-size:12px}
+.live-map-head span{font-size:10px;color:#7b8994}.live-route-map{height:440px;width:100%;background:#e7eff3;z-index:1}
+.live-route-map .leaflet-popup-content{font-family:Montserrat,Arial,sans-serif;font-size:11px}.live-map-note{font-size:10px;color:#6e7e88;margin:12px 17px;line-height:1.6}
+.live-vehicle-list{max-height:492px;overflow-y:auto}.live-vehicle-list>p{font-size:11px;color:#748691;padding:12px 16px}
+.live-vehicle{border-bottom:1px solid #edf1f4;padding:14px 16px;display:grid;grid-template-columns:53px minmax(0,1fr) auto;align-items:center;gap:11px}.live-vehicle:last-child{border:0}
+.live-vehicle-number{background:#005682;color:white;font-size:11px;font-weight:800;padding:7px 5px;text-align:center;border-radius:3px}
+.live-vehicle b{font-size:11px;display:block;margin-bottom:4px}.live-vehicle small{display:block;font-size:10px;color:#708390;line-height:1.5}.live-vehicle-delay{text-align:right;font-size:12px;font-weight:800}
+.live-events{padding:19px 20px;margin-top:13px}.live-events-head h3{font-size:18px;margin:7px 0 0;letter-spacing:-.04em}.live-events-head>span{font-size:10px;color:#8394a0}
+.pid-empty{padding:13px 0;border-top:1px solid #e9eef1}.pid-empty strong{font-size:12px}.pid-empty p{font-size:11px;color:#778a96;line-height:1.6}.pid-empty a{font-size:11px;color:#005682;font-weight:800;margin-right:16px}
+.pid-item{border-top:1px solid #e6edf1;padding:12px 0}.pid-item strong{font-size:12px;display:block;margin-bottom:5px}.pid-item span{font-size:10px;color:#697c89;margin-right:10px}.pid-item a{color:#005682;font-size:11px;text-decoration:underline}
+.replay-section-head{border-top:1px solid #dae3e9;margin:27px 0 12px;padding-top:22px}.replay-section-head h2{font-size:21px;letter-spacing:-.04em;margin:6px 0}.replay-section-head p{font-size:11px;color:#708492;margin:0}
+.bus-map-marker{border:2px solid white;background:#005682;border-radius:5px;color:white;font:800 10px Montserrat,Arial,sans-serif;text-align:center;line-height:25px;box-shadow:0 2px 6px #001e3570}.bus-map-marker.stale{background:#a17d45}
+@media(max-width:900px){.live-map-grid{grid-template-columns:1fr}.live-route-map{height:370px}.live-vehicle-list{max-height:270px}}
+@media(max-width:590px){.live-stats{grid-template-columns:repeat(2,1fr)}.live-stats>div:nth-child(2){border-right:0}.live-stats>div:nth-child(-n+2){border-bottom:1px solid #dce3e8}.live-stats>div{padding:14px}.live-route-map{height:340px}.live-head h2{font-size:22px}.live-events-head{align-items:start;flex-direction:column}}
 </style></head>
 <body>
 <header><div class="header-inner"><a class="logo" href="#live">TUNELBUS <em class="logo-route">145</em></a><nav class="topnav" aria-label="Hlavní navigace"><a href="#live" class="nav-link" data-nav="live"><span class="ico" data-icon="radio"></span> Přehled</a><a href="#history" class="nav-link" data-nav="history"><span class="ico" data-icon="chart"></span> Historie</a><a href="#about" class="nav-link" data-nav="about"><span class="ico" data-icon="info"></span> O projektu</a></nav><span class="prototype">NÁVRH · DATA 7. 11. 2026</span></div></header>
@@ -143,7 +166,23 @@ main{max-width:1350px;margin:auto;padding:34px 28px 90px}.page{display:none}.pag
      <section class="overview-side-metric"><span class="overview-side-heading"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><path d="m7 12 2 2 4-4"/></svg> ZACHYCENÉ SPOJE</span><strong id="home-coverage">—</strong><p id="home-coverage-note">Zachycené oproti plánovaným</p></section>
    </div>
  </div>
- <section class="replay-bar" aria-label="Přehrávání archivního provozu">
+ <section class="live-overview" aria-label="Současný stav linky 145">
+ <div class="live-head"><div><span class="overview-eyebrow">AKTUÁLNĚ NA LINCE</span><h2>Co se právě děje?</h2></div><div class="live-source"><span id="live-source-state">Načítám dostupná data</span><small id="live-source-time">—</small></div></div>
+ <div id="live-availability" class="live-availability" role="status">Zjišťuji poslední známý stav provozu.</div>
+ <div class="live-stats">
+  <div><span>VOZY NA TRASE</span><strong id="live-active">—</strong><small>poslední dostupný stav</small></div>
+  <div><span>MEDIÁN ZPOŽDĚNÍ</span><strong id="live-delay">—</strong><small>vozidla s platným měřením</small></div>
+  <div><span>VČASNOST VOZŮ</span><strong id="live-ontime">—</strong><small>aktuální měřená vozidla</small></div>
+  <div><span>VÝVOJ ZPOŽDĚNÍ</span><strong id="live-trend">—</strong><small>posledních přibližně 30 min</small></div>
+ </div>
+ <div class="live-map-grid">
+  <div class="live-map-wrap"><div class="live-map-head"><strong>Mapa linky 145</strong><span id="live-map-label">Čekám na GPS</span></div><div id="live-route-map" class="live-route-map" role="region" aria-label="Mapa trasy a posledních známých poloh vozidel"></div><p class="live-map-note">V tunelu Hradčanská–Kuchyňka může být GPS nedostupná. Zobrazené body jsou poslední známá měření, ne potvrzený průběh jízdy.</p></div>
+  <div class="live-vehicle-wrap"><div class="live-map-head"><strong id="live-vehicles-title">Autobusy na lince</strong><span id="live-vehicle-count">—</span></div><div id="live-vehicle-list" class="live-vehicle-list"><p>Načítám vozidla…</p></div></div>
+ </div>
+ <div class="live-events"><div class="live-events-head"><div><span class="overview-eyebrow">UDÁLOSTI A DOPRAVNÍ SITUACE</span><h3>Co ovlivňuje provoz?</h3></div><span id="live-events-updated">Zdroje: PID · Tunelbus</span></div><div id="pid-events" class="pid-events"><div class="pid-empty"><strong>Oficiální události PID</strong><p>Kontrola plánovaných výluk a mimořádností linky 145.</p><a href="https://pid.cz/feed/rss-vyluky/" target="_blank" rel="noopener">Výluky PID ↗</a><a href="https://pid.cz/feed/rss-mimoradnosti/" target="_blank" rel="noopener">Mimořádnosti PID ↗</a></div></div></div>
+</section>
+<div class="replay-section-head"><span class="overview-eyebrow">TESTOVACÍ HISTORICKÝ REŽIM</span><h2>Provozní simulace a archiv</h2><p>Přehrávání dne z 2.–8. listopadu slouží k testování analytiky. Nejde o aktuální GPS.</p></div>
+<section class="replay-bar" aria-label="Přehrávání archivního provozu">
   <div class="replay-identity"><span class="replay-pulse" aria-hidden="true"></span><div><strong>Provoz linky 145</strong><span>Simulace z archivních měření · nikoliv živá poloha</span></div></div>
   <div class="replay-controls"><label for="replay-time">Čas</label><input id="replay-time" type="range" min="270" max="1439" step="1" value="720" aria-label="Čas simulovaného provozu"><strong id="replay-clock">12:00</strong><button id="replay-toggle" class="replay-button" type="button" aria-pressed="false">▶ Přehrát</button></div>
 </section>
@@ -278,4 +317,8 @@ document.getElementById('days').innerHTML='<a class="dayrow" href="#day"><span c
 const warning=document.querySelector('#trip .notice');if(warning)warning.textContent='Dejvická: sporné měření není započteno do grafu ani typického zpoždění. Raw údaj −19:57 zůstává v archivu.';
 }
 // The seven-day preview loader owns the display; single-day snapshot remains as reference only.
-</script><script src="week-preview.js" defer></script></body></html>
+</script><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoaRZ3UO8="
+ crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+<script src="overview-live.js" defer></script>
+<script src="week-preview.js" defer></script></body></html>
