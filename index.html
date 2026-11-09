@@ -181,25 +181,6 @@ main{max-width:1350px;margin:auto;padding:34px 28px 90px}.page{display:none}.pag
  </div>
  <div class="live-events"><div class="live-events-head"><div><span class="overview-eyebrow">UDÁLOSTI A DOPRAVNÍ SITUACE</span><h3>Co ovlivňuje provoz?</h3></div><span id="live-events-updated">Zdroje: PID · Tunelbus</span></div><div id="pid-events" class="pid-events"><div class="pid-empty"><strong>Oficiální události PID</strong><p>Kontrola plánovaných výluk a mimořádností linky 145.</p><a href="https://pid.cz/feed/rss-vyluky/" target="_blank" rel="noopener">Výluky PID ↗</a><a href="https://pid.cz/feed/rss-mimoradnosti/" target="_blank" rel="noopener">Mimořádnosti PID ↗</a></div></div></div>
 </section>
-<div class="replay-section-head"><span class="overview-eyebrow">TESTOVACÍ HISTORICKÝ REŽIM</span><h2>Provozní simulace a archiv</h2><p>Přehrávání dne z 2.–8. listopadu slouží k testování analytiky. Nejde o aktuální GPS.</p></div>
-<section class="replay-bar" aria-label="Přehrávání archivního provozu">
-  <div class="replay-identity"><span class="replay-pulse" aria-hidden="true"></span><div><strong>Provoz linky 145</strong><span>Simulace z archivních měření · nikoliv živá poloha</span></div></div>
-  <div class="replay-controls"><label for="replay-time">Čas</label><input id="replay-time" type="range" min="270" max="1439" step="1" value="720" aria-label="Čas simulovaného provozu"><strong id="replay-clock">12:00</strong><button id="replay-toggle" class="replay-button" type="button" aria-pressed="false">▶ Přehrát</button></div>
-</section>
-<section class="replay-metrics" aria-label="Provoz v nastaveném čase">
-  <div class="replay-stat"><span>ODJEZDY DO TÉTO CHVÍLE</span><strong id="replay-started">—</strong><small>podle jízdního řádu</small></div>
-  <div class="replay-stat"><span>SPOJE V POSLEDNÍ HODINĚ</span><strong id="replay-hour">—</strong><small>odjezdy z konečných</small></div>
-  <div class="replay-stat"><span>TYPICKÉ ZPOŽDĚNÍ</span><strong id="replay-median">—</strong><small>spoje zahájené v poslední hodině</small></div>
-  <div class="replay-stat"><span>VOZIDLA V ARCHIVU</span><strong id="replay-vehicles">—</strong><small>různá ev. čísla za celý den</small></div>
-</section>
-<section class="replay-main">
-  <article class="replay-card"><div class="replay-card-heading"><div><span class="overview-eyebrow">PRŮBĚH DNE</span><h2>Zpoždění během dne</h2></div><span class="replay-legend">Medián spojů podle času odjezdu</span></div><div id="replay-hours" class="replay-hours" role="img" aria-label="Vývoj zpoždění po hodinách"></div><div class="replay-explain">Zpoždění představuje souhrnnou odchylku spoje, nikoliv přesný čas jeho odjezdu z konečné.</div></article>
-  <article class="replay-card"><div class="replay-card-heading"><div><span class="overview-eyebrow">SMĚRY</span><h2>Kam se jezdí lépe?</h2></div></div><div id="replay-directions" class="replay-directions"></div><div class="replay-explain">Celodenní porovnání spojů v obou směrech.</div></article>
-</section>
-<section class="replay-main replay-second">
-  <article class="replay-card"><div class="replay-card-heading"><div><span class="overview-eyebrow">JÍZDNÍ ŘÁD · ARCHIVNÍ REPLAY</span><h2>Spoje kolem vybraného času</h2></div><a href="#history" class="replay-action">Historie →</a></div><div class="replay-tabs"><button class="replay-tab active" data-replay-filter="all" type="button">Všechny</button><button class="replay-tab" data-replay-filter="Dejvická" type="button">Dejvická</button><button class="replay-tab" data-replay-filter="Sídliště Čimice" type="button">Čimice</button></div><div id="replay-trips" class="replay-trips"></div></article>
-  <article class="replay-card"><div class="replay-card-heading"><div><span class="overview-eyebrow">STRUKTURA ZPOŽDĚNÍ</span><h2>Jak jely spoje?</h2></div></div><div id="replay-dist" class="replay-dist"></div><div class="replay-explain" id="replay-quality">Statistiky vycházejí z archivních výpočtů. Přesné odjezdy zatím nejsou nezávisle potvrzené.</div><a href="#about" class="replay-action">Metodika a kvalita dat →</a></article>
-</section>
 <div class="overview-columns">
    <section class="overview-panel overview-trend">
      <div class="overview-panel-head"><div><span class="overview-eyebrow">POSLEDNÍCH 7 DNÍ</span><h2>Jak se mění včasnost?</h2></div><span class="overview-panel-unit">Podíl spojů · %</span></div>
@@ -220,7 +201,28 @@ main{max-width:1350px;margin:auto;padding:34px 28px 90px}.page{display:none}.pag
  </div>
  <div class="overview-disclaimer"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><p><strong>Testovací archiv.</strong> Včasnost zatím vychází z reprezentativního zpoždění spojů, nikoli z nezávisle potvrzených zastávkových odjezdů. <a href="#about">Více o metodice</a></p></div>
 </section>
-<section id="history" class="page"><div class="pagehead"><div><h1>Historie</h1></div></div><div class="filters"><button class="btn period" data-period="7">7 dní</button><button class="btn period selected" data-period="30">30 dní</button><button class="btn period" data-period="90">90 dní</button><select id="daytype" aria-label="Typ dne"><option>Všechny dny</option><option>Pracovní dny</option><option>Víkendy</option></select><select aria-label="Směr"><option>Oba směry</option><option>Směr Dejvická</option><option>Směr Čimice</option></select></div>
+<section id="history" class="page"><div class="pagehead"><div><h1>Historie</h1></div></div>
+<div class="replay-section-head"><span class="overview-eyebrow">TESTOVACÍ HISTORICKÝ REŽIM</span><h2>Provozní simulace a archiv</h2><p>Přehrávání dne z 2.–8. listopadu slouží k testování analytiky. Nejde o aktuální GPS.</p></div>
+<section class="replay-bar" aria-label="Přehrávání archivního provozu">
+  <div class="replay-identity"><span class="replay-pulse" aria-hidden="true"></span><div><strong>Provoz linky 145</strong><span>Simulace z archivních měření · nikoliv živá poloha</span></div></div>
+  <div class="replay-controls"><label for="replay-time">Čas</label><input id="replay-time" type="range" min="270" max="1439" step="1" value="720" aria-label="Čas simulovaného provozu"><strong id="replay-clock">12:00</strong><button id="replay-toggle" class="replay-button" type="button" aria-pressed="false">▶ Přehrát</button></div>
+</section>
+<section class="replay-metrics" aria-label="Provoz v nastaveném čase">
+  <div class="replay-stat"><span>ODJEZDY DO TÉTO CHVÍLE</span><strong id="replay-started">—</strong><small>podle jízdního řádu</small></div>
+  <div class="replay-stat"><span>SPOJE V POSLEDNÍ HODINĚ</span><strong id="replay-hour">—</strong><small>odjezdy z konečných</small></div>
+  <div class="replay-stat"><span>TYPICKÉ ZPOŽDĚNÍ</span><strong id="replay-median">—</strong><small>spoje zahájené v poslední hodině</small></div>
+  <div class="replay-stat"><span>VOZIDLA V ARCHIVU</span><strong id="replay-vehicles">—</strong><small>různá ev. čísla za celý den</small></div>
+</section>
+<section class="replay-main">
+  <article class="replay-card"><div class="replay-card-heading"><div><span class="overview-eyebrow">PRŮBĚH DNE</span><h2>Zpoždění během dne</h2></div><span class="replay-legend">Medián spojů podle času odjezdu</span></div><div id="replay-hours" class="replay-hours" role="img" aria-label="Vývoj zpoždění po hodinách"></div><div class="replay-explain">Zpoždění představuje souhrnnou odchylku spoje, nikoliv přesný čas jeho odjezdu z konečné.</div></article>
+  <article class="replay-card"><div class="replay-card-heading"><div><span class="overview-eyebrow">SMĚRY</span><h2>Kam se jezdí lépe?</h2></div></div><div id="replay-directions" class="replay-directions"></div><div class="replay-explain">Celodenní porovnání spojů v obou směrech.</div></article>
+</section>
+<section class="replay-main replay-second">
+  <article class="replay-card"><div class="replay-card-heading"><div><span class="overview-eyebrow">JÍZDNÍ ŘÁD · ARCHIVNÍ REPLAY</span><h2>Spoje kolem vybraného času</h2></div><a href="#history" class="replay-action">Historie →</a></div><div class="replay-tabs"><button class="replay-tab active" data-replay-filter="all" type="button">Všechny</button><button class="replay-tab" data-replay-filter="Dejvická" type="button">Dejvická</button><button class="replay-tab" data-replay-filter="Sídliště Čimice" type="button">Čimice</button></div><div id="replay-trips" class="replay-trips"></div></article>
+  <article class="replay-card"><div class="replay-card-heading"><div><span class="overview-eyebrow">STRUKTURA ZPOŽDĚNÍ</span><h2>Jak jely spoje?</h2></div></div><div id="replay-dist" class="replay-dist"></div><div class="replay-explain" id="replay-quality">Statistiky vycházejí z archivních výpočtů. Přesné odjezdy zatím nejsou nezávisle potvrzené.</div><a href="#about" class="replay-action">Metodika a kvalita dat →</a></article>
+</section>
+
+<div class="filters"><button class="btn period" data-period="7">7 dní</button><button class="btn period selected" data-period="30">30 dní</button><button class="btn period" data-period="90">90 dní</button><select id="daytype" aria-label="Typ dne"><option>Všechny dny</option><option>Pracovní dny</option><option>Víkendy</option></select><select aria-label="Směr"><option>Oba směry</option><option>Směr Dejvická</option><option>Směr Čimice</option></select></div>
 <div class="kpis"><div class="kpi"><div class="kpi-label">Průměr</div><div class="kpi-val">+1:13</div></div><div class="kpi"><div class="kpi-label">Medián</div><div class="kpi-val">+0:58</div></div><div class="kpi"><div class="kpi-label">P90</div><div class="kpi-val">+3:12</div></div><div class="kpi"><div class="kpi-label">Včasnost</div><div class="kpi-val">88 %</div></div></div>
 <div class="stack"><article class="panel"><h2 class="panel-title">Vývoj po dnech</h2><div id="history-chart"></div></article><article class="panel"><h2 class="panel-title">Průběh podle hodiny</h2><div id="hour-chart"></div></article></div>
 <article class="panel"><h2 class="panel-title">Jednotlivé dny </h2><div id="days"></div></article>
