@@ -27,24 +27,120 @@ main{max-width:1350px;margin:auto;padding:34px 28px 90px}.page{display:none}.pag
 .quality-row{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5eaf0;padding:14px 0;font-size:12px}.quality-row strong{color:#005682;font-size:13px}.quality-row:last-of-type{margin-bottom:15px}
 #history .stack{grid-template-columns:repeat(2,minmax(0,1fr))}.triprow:not(a){cursor:default}.triprow:not(a):hover{background:white}
 @media(max-width:767px){#history .stack{grid-template-columns:1fr}.week-bar-row{grid-template-columns:78px minmax(0,1fr) 25px;gap:7px}}
+</style><style>
+/* Tunelbus overview: data-led editorial composition, independent of detail pages */
+#live{--ov-blue:#005682;--ov-soft:#e9f3f7;--ov-ink:#152634}
+#live .overview-titleline{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin:13px 0 27px}
+#live .overview-titleline h1{font-size:clamp(34px,3.8vw,48px);line-height:1.08;letter-spacing:-.06em;margin:12px 0 10px;font-weight:800}
+.overview-kicker,.overview-eyebrow{font-size:10px;font-weight:800;letter-spacing:.115em;color:var(--ov-blue)}
+.overview-kicker-dot{display:inline-block;width:3px;height:3px;border-radius:100%;background:#aab8c2;vertical-align:middle;margin:0 7px}
+.overview-subtitle{display:flex;align-items:center;gap:11px;margin:0;color:#637583;font-size:12px;font-weight:600}
+.overview-linkline{display:inline-block;width:28px;height:1px;background:#9cacb7;position:relative}
+.overview-linkline:after{content:"";position:absolute;right:0;top:-2px;width:5px;height:5px;border-top:1px solid #9cacb7;border-right:1px solid #9cacb7;transform:rotate(45deg)}
+.overview-period{display:flex;align-items:center;gap:12px;padding:10px 11px;background:white;border:1px solid var(--line);border-radius:4px}
+.overview-period label{font-size:10px;color:#697b87;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.overview-period select{padding:6px 27px 6px 5px;border:0;font-size:12px;font-weight:800;color:#005682}
+.overview-layout{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(270px,1fr);gap:15px}
+.overview-feature{background:#005682;color:white;padding:31px 33px 23px;display:flex;flex-direction:column;justify-content:space-between;min-height:322px}
+.overview-feature-top,.overview-feature-foot{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.overview-feature .overview-eyebrow{color:#c1dce9}
+.overview-method-badge{font-size:9px;letter-spacing:.06em;color:#bcd6e3;border:1px solid #5c91aa;padding:7px 9px;white-space:nowrap}
+.overview-score-row{display:flex;align-items:center;gap:25px;margin-top:18px}
+.overview-score{font-size:clamp(68px,7.2vw,102px);font-weight:800;letter-spacing:-.09em;line-height:.98;white-space:nowrap}
+.overview-score-context{display:flex;flex-direction:column;gap:9px;max-width:235px}
+.overview-meter-label{font-size:clamp(16px,1.5vw,21px);font-weight:800;line-height:1.27;letter-spacing:-.025em}
+.overview-score-helper{font-size:11px;color:#c4dfeb;line-height:1.5}
+.overview-meter{height:7px;background:#2a759d;margin:20px 0 12px;overflow:hidden}
+.overview-meter-fill{background:#bce8e7;height:100%;transition:width .5s ease}
+.overview-score-explain{font-size:11px;line-height:1.65;color:#d3e5ef;margin:0 0 25px}
+.overview-feature-foot{border-top:1px solid #397f9e;padding-top:17px;font-size:11px;color:#d7e8ef}
+.overview-feature-foot a{font-weight:750;color:white;white-space:nowrap}
+.overview-feature-foot a:hover{text-decoration:underline}
+.overview-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#80e1c5;margin-right:5px}
+.overview-side{display:grid;grid-template-rows:1fr 1fr;gap:15px}
+.overview-side-metric{background:#fff;border:1px solid var(--line);padding:25px 27px;display:flex;flex-direction:column;justify-content:center}
+.overview-side-heading{display:flex;align-items:center;gap:9px;color:#637684;letter-spacing:.075em;font-size:10px;font-weight:800}
+.overview-side-heading svg{width:19px;height:19px;stroke:var(--ov-blue);stroke-width:1.7;stroke-linejoin:round;stroke-linecap:round;fill:none}
+.overview-side-metric strong{font-size:clamp(34px,3.8vw,48px);font-weight:800;letter-spacing:-.065em;line-height:1.1;margin:15px 0 7px}
+.overview-side-metric p{font-size:11px;color:#768792;margin:0;line-height:1.5}
+.overview-columns{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(270px,1fr);gap:15px;margin-top:16px}
+.overview-panel{background:white;border:1px solid var(--line);padding:26px 27px;min-width:0}
+.overview-panel-head{display:flex;justify-content:space-between;align-items:end;gap:15px}
+.overview-panel h2{margin:7px 0 0;font-size:19px;line-height:1.25;font-weight:800;letter-spacing:-.035em}
+.overview-panel-unit{font-size:10px;color:#7a8b95;white-space:nowrap}
+.overview-week-bars{height:175px;display:flex;align-items:end;gap:13px;margin:25px 0 12px}
+.overview-week-item{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:end;height:100%;cursor:pointer;color:#7a8c98}
+.overview-week-item:hover .overview-week-column{background:#7fa5ba}
+.overview-week-item:focus-visible{outline:2px solid #005682;outline-offset:4px}
+.overview-week-value{font-size:11px;font-weight:800;margin-bottom:8px;color:#415d6d}
+.overview-week-track{height:127px;width:100%;display:flex;align-items:end;background:#f2f6f8}
+.overview-week-column{background:#a8c5d4;width:100%;min-height:2px;transition:height .4s ease}
+.overview-week-item[aria-pressed="true"] .overview-week-column{background:#005682}
+.overview-week-item[aria-pressed="true"] .overview-week-value,.overview-week-item[aria-pressed="true"] .overview-week-label{color:#005682}
+.overview-week-item.is-partial{opacity:.5}
+.overview-week-item.is-partial .overview-week-column{background:repeating-linear-gradient(135deg,#a8c5d4 0,#a8c5d4 5px,#d1e0e7 5px,#d1e0e7 10px)}
+.overview-week-label{font-size:11px;margin-top:9px;font-weight:750}
+.overview-trend-foot{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#84939e;gap:10px}
+.overview-swatch{display:flex;align-items:center;gap:6px}
+.overview-swatch i{width:8px;height:8px;background:#005682;display:inline-block}
+.overview-story-stat{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:22px 0 17px;border-bottom:1px solid #e5edf1}
+.overview-story-stat span{max-width:180px;font-size:12px;font-weight:650;line-height:1.55;color:#607583}
+.overview-story-stat strong{font-size:25px;white-space:nowrap;letter-spacing:-.04em}
+.overview-context-note{font-size:11px;line-height:1.85;color:#798a95;margin:18px 0 18px}
+.overview-inline-link{display:flex;align-items:center;justify-content:space-between;color:#005682;font-size:12px;font-weight:800;border-top:1px solid #e5edf1;padding-top:16px}
+.overview-bottom{background:#fff;border:1px solid var(--line);margin-top:17px;padding:26px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.overview-bottom h2{font-size:20px;font-weight:800;letter-spacing:-.035em;margin:6px 0 7px}
+.overview-bottom p{font-size:11px;color:#6e8290;line-height:1.65;margin:0}
+.overview-bottom>a{display:flex;gap:32px;align-items:center;background:#005682;color:white;font-size:12px;font-weight:750;padding:15px 19px;white-space:nowrap}
+.overview-bottom>a:hover{background:#004466}
+.overview-disclaimer{display:flex;gap:9px;align-items:flex-start;margin:16px 3px 0;color:#748793}
+.overview-disclaimer svg{stroke:#7594a5;stroke-width:1.6;fill:none;width:16px;height:16px;flex:none;margin-top:2px}
+.overview-disclaimer p{font-size:10px;line-height:1.75;margin:0}
+.overview-disclaimer a{color:#005682;text-decoration:underline}
+@media(max-width:850px){.overview-layout,.overview-columns{grid-template-columns:1fr}.overview-side{grid-template-columns:1fr 1fr;grid-template-rows:auto}.overview-feature{min-height:270px}}
+@media(max-width:600px){#live .overview-titleline{align-items:flex-start;flex-direction:column;gap:17px;margin-top:0;margin-bottom:19px}#live .overview-titleline h1{font-size:34px;margin:7px 0} .overview-kicker{font-size:9px}.overview-period{width:100%;justify-content:space-between}.overview-feature{padding:22px 20px 18px;min-height:250px}.overview-score{font-size:66px}.overview-score-row{gap:15px;margin-top:16px}.overview-meter-label{font-size:16px}.overview-feature-foot{font-size:10px}.overview-feature-top{gap:6px}.overview-feature .overview-eyebrow{font-size:9px}.overview-method-badge{font-size:8px;padding:6px}.overview-side{gap:10px}.overview-side-metric{padding:17px 15px}.overview-side-heading{font-size:9px}.overview-side-metric strong{font-size:30px}.overview-panel{padding:19px 16px}.overview-panel h2{font-size:17px}.overview-week-bars{gap:7px}.overview-week-value,.overview-week-label{font-size:10px}.overview-bottom{flex-direction:column;align-items:stretch;padding:20px}.overview-bottom>a{justify-content:space-between}.overview-panel-unit{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.overview-meter-fill,.overview-week-column{transition:none}}
 </style></head>
 <body>
 <header><div class="header-inner"><a class="logo" href="#live">TUNELBUS <em class="logo-route">145</em></a><nav class="topnav" aria-label="Hlavní navigace"><a href="#live" class="nav-link" data-nav="live"><span class="ico" data-icon="radio"></span> Přehled</a><a href="#history" class="nav-link" data-nav="history"><span class="ico" data-icon="chart"></span> Historie</a><a href="#about" class="nav-link" data-nav="about"><span class="ico" data-icon="info"></span> O projektu</a></nav><span class="prototype">NÁVRH · DATA 7. 11. 2026</span></div></header>
 <main>
-<section id="live" class="page"><div class="pagehead"><div><h1>Přehled provozu</h1><p class="subtle">Sobota 7. 11. 2026</p></div></div><section class="public-home" aria-label="Souhrn provozu">
-  <div class="home-hero"><div class="home-status"><span class="home-status-icon" aria-hidden="true">✓</span><div><div class="home-kicker">Včasnost linky</div><h2 id="home-verdict">Vyhodnocujeme provoz…</h2></div></div><div class="home-percent"><strong id="home-percent">—</strong><span>spojů včas</span></div></div>
-  <div class="home-kpis">
-    <div><span class="home-metric-icon" aria-hidden="true">◷</span><div><div class="home-kpi-name">Typické zpoždění</div><strong id="home-median">—</strong><small>polovina spojů měla zpoždění nejvýše této hodnoty</small></div></div>
-    <div><span class="home-metric-icon" aria-hidden="true">▣</span><div><div class="home-kpi-name">Vyhodnocené spoje</div><strong id="home-coverage">—</strong><small id="home-coverage-note">ze všech plánovaných spojů</small></div></div>
-  </div>
-  <a href="#day" class="home-action"><div><strong>Podrobný rozbor dne</strong><span>Zastávky, zpoždění a jednotlivé spoje</span></div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
-  <a href="#history" class="home-secondary"><span>Historie provozu</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
-  <p class="home-method">Včasnost je podíl vyhodnocených spojů s typickým zpožděním menším než 3 minuty. <a href="#about">Metodika</a></p>
-</section>
-<div class="kpis"><div class="kpi"><div class="kpi-label">Průměr</div><div class="kpi-val">+1:13</div></div><div class="kpi"><div class="kpi-label">Včasnost</div><div class="kpi-val">91 %</div></div><div class="kpi"><div class="kpi-label">Spoje</div><div class="kpi-val">142</div></div><div class="kpi"><div class="kpi-label">Vozidla</div><div class="kpi-val">8</div></div></div>
-<div class="grid-two"><article class="panel"><h2 class="panel-title">Poloha vozidel <span class="tiny">Archiv · 7. 11.</span></h2><div class="map"><svg viewBox="0 0 760 380" preserveAspectRatio="xMidYMid slice" aria-label="Schematická mapa trasy"><rect width="760" height="380" fill="#e8edf0"/><g stroke="white" fill="none" stroke-width="17"><path d="M0 40L760 110M0 160L760 220M0 300L760 355M90 0L280 380M340 0L450 380M550 0L680 380"/></g><g stroke="#d3dde4" fill="none" stroke-width="2"><path d="M10 250 Q360 140 700 25M30 350 Q380 250 750 280"/></g><path d="M90 90 C170 65 230 135 290 160 S415 200 490 220 S560 300 670 320" fill="none" stroke="#005682" stroke-width="6" stroke-linecap="round"/><g fill="white" stroke="#005682" stroke-width="4"><circle cx="90" cy="90" r="10"/><circle cx="290" cy="160" r="10"/><circle cx="490" cy="220" r="10"/><circle cx="670" cy="320" r="10"/></g><g font-family="Montserrat,Arial" font-size="12" font-weight="700" fill="#405461"><text x="48" y="70">Dejvická</text><text x="255" y="138">Kobylisy</text><text x="580" y="347">Sídliště Čimice</text></g><g fill="#005682" stroke="white" stroke-width="3"><circle cx="200" cy="104" r="12"/><circle cx="413" cy="196" r="12"/><circle cx="585" cy="297" r="12"/></g><g fill="white" font-family="Montserrat" font-size="11" font-weight="800" text-anchor="middle"><text x="200" y="108">1</text><text x="413" y="200">2</text><text x="585" y="301">3</text></g></svg><span class="map-legend">Schéma · nejedná se o GPS polohy</span></div></article>
-<article class="panel"><h2 class="panel-title">Vozidla na trase <span class="pill" id="vehicle-count">—</span></h2><div class="list" id="vehicles"></div><button class="link" onclick="document.getElementById('vehicles').classList.toggle('all');this.textContent=this.textContent.includes('Všech')?'Zobrazit méně':'Všechna vozidla ↓'">Všechna vozidla ↓</button></article></div>
-<div class="grid-two"><article class="panel"><h2 class="panel-title">Vývoj během dne </h2><div id="live-chart"></div></article><article class="panel"><h2 class="panel-title">Výrazné hodnoty</h2><div class="list"><div class="vehicle"><span class="tag" data-icon="trend"></span><div class="grow"><div class="primaryline">Největší zpoždění</div><div class="secondaryline">Čimický háj</div></div><b class="delay amber">+5:27</b></div><div class="vehicle"><span class="tag" data-icon="route"></span><div class="grow"><div class="primaryline">Problematický úsek</div><div class="secondaryline">Hradčanská → Kuchyňka</div></div><b class="delay">+44 s</b></div><div class="vehicle"><span class="tag" data-icon="database"></span><div class="grow"><div class="primaryline">Pokrytí dne</div><div class="secondaryline">142 z 142 spojů</div></div><b class="delay green">100 %</b></div></div></article></div>
+<section id="live" class="page">
+ <div class="overview-titleline">
+   <div><div class="overview-kicker">ARCHIVNÍ PROVOZNÍ PŘEHLED <span class="overview-kicker-dot"></span> LINKA 145</div><h1>Přehled provozu</h1><p class="overview-subtitle">Dejvická <span class="overview-linkline" aria-hidden="true"></span> Sídliště Čimice</p></div>
+   <div class="overview-period"><label for="overview-day-select">Vybraný den</label><select id="overview-day-select" aria-label="Vyber den v týdnu"><option value="2026-11-02">Po 2. 11.</option><option value="2026-11-03">Út 3. 11.</option><option value="2026-11-04">St 4. 11.</option><option value="2026-11-05">Čt 5. 11.</option><option value="2026-11-06">Pá 6. 11.</option><option value="2026-11-07" selected>So 7. 11.</option><option value="2026-11-08">Ne 8. 11.</option></select></div>
+ </div>
+ <div class="overview-layout">
+   <section class="overview-feature" aria-label="Hlavní statistika">
+     <div class="overview-feature-top"><span class="overview-eyebrow">VČASNOST SPOJŮ · DO 3 MINUT</span><span class="overview-method-badge">TESTOVACÍ METODIKA</span></div>
+     <div class="overview-score-row"><div class="overview-score" id="home-percent">—</div><div class="overview-score-context"><span class="overview-meter-label" id="overview-verdict">Načítám archiv</span><span class="overview-score-helper">ze spojů s dostupnými daty</span></div></div>
+     <div class="overview-meter"><div class="overview-meter-fill" id="overview-meter-fill" style="width:0%"></div></div>
+     <p class="overview-score-explain" id="overview-score-explain">Zobrazená data jsou testovací.</p>
+     <div class="overview-feature-foot"><span><i class="overview-dot"></i> <span id="overview-day-status">Uzavřený provozní den</span></span><a href="#about">Jak to počítáme <span aria-hidden="true">↗</span></a></div>
+   </section>
+   <div class="overview-side">
+     <section class="overview-side-metric"><span class="overview-side-heading"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h3l3-7 5 14 3-7h4"/></svg> TYPICKÉ ZPOŽDĚNÍ</span><strong id="home-median">—</strong><p>Medián zpoždění jednoho spoje</p></section>
+     <section class="overview-side-metric"><span class="overview-side-heading"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><path d="m7 12 2 2 4-4"/></svg> ZACHYCENÉ SPOJE</span><strong id="home-coverage">—</strong><p id="home-coverage-note">Zachycené oproti plánovaným</p></section>
+   </div>
+ </div>
+ <div class="overview-columns">
+   <section class="overview-panel overview-trend">
+     <div class="overview-panel-head"><div><span class="overview-eyebrow">POSLEDNÍCH 7 DNÍ</span><h2>Jak se mění včasnost?</h2></div><span class="overview-panel-unit">Podíl spojů · %</span></div>
+     <div id="overview-week-bars" class="overview-week-bars" role="group" aria-label="Včasnost po dnech"></div>
+     <div class="overview-trend-foot"><span>Po–Ne · 2.–8. listopadu 2026</span><span class="overview-swatch"><i></i> Vybraný den</span></div>
+   </section>
+   <section class="overview-panel overview-context">
+     <div class="overview-panel-head"><div><span class="overview-eyebrow">V KONTEXTU TÝDNE</span><h2>Co říkají data?</h2></div></div>
+     <div class="overview-story-stat"><span>Včasnost za uzavřené dny</span><strong id="overview-week-share">—</strong></div>
+     <div class="overview-story-stat"><span>Typické zpoždění tohoto dne</span><strong id="overview-day-delay">—</strong></div>
+     <p class="overview-context-note" id="overview-context-note">Srovnání pouze s uzavřenými dny. Pondělí až pátek mají odlišný provoz než víkend.</p>
+     <a class="overview-inline-link" href="#history">Prozkoumat celý týden <span aria-hidden="true">→</span></a>
+   </section>
+ </div>
+ <div class="overview-bottom">
+   <div><span class="overview-eyebrow">PODROBNOSTI</span><h2>Zajímá tě konkrétní spoj?</h2><p>Časy odjezdů, jednotlivé autobusy a rozložení zpoždění za vybraný den.</p></div>
+   <a id="overview-day-link" href="#day/2026-11-07">Zobrazit detail dne <span aria-hidden="true">→</span></a>
+ </div>
+ <div class="overview-disclaimer"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><p><strong>Testovací archiv.</strong> Včasnost zatím vychází z reprezentativního zpoždění spojů, nikoli z nezávisle potvrzených zastávkových odjezdů. <a href="#about">Více o metodice</a></p></div>
 </section>
 <section id="history" class="page"><div class="pagehead"><div><h1>Historie</h1></div></div><div class="filters"><button class="btn period" data-period="7">7 dní</button><button class="btn period selected" data-period="30">30 dní</button><button class="btn period" data-period="90">90 dní</button><select id="daytype" aria-label="Typ dne"><option>Všechny dny</option><option>Pracovní dny</option><option>Víkendy</option></select><select aria-label="Směr"><option>Oba směry</option><option>Směr Dejvická</option><option>Směr Čimice</option></select></div>
 <div class="kpis"><div class="kpi"><div class="kpi-label">Průměr</div><div class="kpi-val">+1:13</div></div><div class="kpi"><div class="kpi-label">Medián</div><div class="kpi-val">+0:58</div></div><div class="kpi"><div class="kpi-label">P90</div><div class="kpi-val">+3:12</div></div><div class="kpi"><div class="kpi-label">Včasnost</div><div class="kpi-val">88 %</div></div></div>
