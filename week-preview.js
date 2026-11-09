@@ -18,38 +18,14 @@ const alertBox = (message, kind='warning') => '<p class="week-alert '+kind+'">'+
 const isPartial = d => !dataset.days[d]?.complete;
 function getTrips(day){return dataset.days[day]?.trips?.trips||[]}
 function updatePublic(){
-  const day=dataset.days[selectedDay],a=day?.analytics;
-  if(!a)return;
-  const partial=isPartial(selectedDay);
-  const ratio=partial?null:a.within_3_minutes;
-  const p=ratio===null?0:Math.max(0,Math.min(100,ratio));
-  txt(document.getElementById('home-percent'),ratio===null?'—':ratio+' %');
-  txt(document.getElementById('overview-verdict'),partial?'Neúplný den':ratio>=90?'Většina spojů jela včas':ratio>=75?'Převážně včasné spoje':ratio>=50?'Častější zpoždění':'Zpoždění převažovala');
-  txt(document.getElementById('overview-score-explain'),partial?'Export nedělního provozu není kompletní. Včasnost proto nelze vydávat za uzavřený výsledek.':a.delay_distribution?.length?a.delay_distribution.find(x=>x.key==='on_time')?.count+' ze '+a.usable_trips+' vyhodnocených spojů mělo reprezentativní zpoždění v rozmezí −1 až +3 minuty.':'Výsledek ze zachycených spojů.');
-  const fill=document.getElementById('overview-meter-fill');if(fill)fill.style.width=p+'%';
-  txt(document.getElementById('overview-day-status'),partial?'Částečný provozní den':'Uzavřený provozní den');
-  txt(document.getElementById('home-median'),fmt(a.median_delay));
-  txt(document.getElementById('home-coverage'),day.source_captured_trips+' / '+a.planned_trips);
-  txt(document.getElementById('home-coverage-note'),partial?'Chybí část měření z konce dne':'Zachyceno / plánováno · ne úplnost měření');
-  const select=document.getElementById('overview-day-select');if(select)select.value=selectedDay;
-  const link=document.getElementById('overview-day-link');if(link)link.href=urlForDay(selectedDay);
-  txt(document.getElementById('overview-day-delay'),fmt(a.median_delay));
-  const allClosed=DAYS.filter(d=>!isPartial(d)).flatMap(d=>getTrips(d).map(t=>t.average_delay).filter(v=>v!==null&&Number.isFinite(v)));
-  const share=allClosed.length?Math.round(allClosed.filter(v=>v>=-60&&v<180).length*100/allClosed.length):null;
-  txt(document.getElementById('overview-week-share'),share===null?'—':share+' %');
-  txt(document.getElementById('overview-context-note'),partial?'Nedělní výřez není kompletní a do souhrnu uzavřených dnů se nezapočítává.':'Pro srovnání používáme pouze 2.–7. listopadu. Pracovní dny a sobota se liší skladbou provozu; nejde o přímé hodnocení výkonnosti.');
   const bars=document.getElementById('overview-week-bars');
-  if(bars){
-    bars.innerHTML=DAYS.map(d=>{
-      const curr=dataset.days[d],v=curr.analytics.within_3_minutes,selected=d===selectedDay;
-      const label=WEEKDAY[new Date(d+'T12:00:00').getDay()];
-      const partialDay=!curr.complete;
-      const width=Number.isFinite(v)?Math.max(2,Math.min(100,v)):0;
-      return '<button type="button" class="overview-week-item'+(partialDay?' is-partial':'')+'" aria-label="'+dayName(d)+', '+(partialDay?'neúplná data, ':'')+v+' % včas" aria-pressed="'+selected+'" data-day="'+d+'" title="'+dayName(d)+(partialDay?' (neúplný den)':'')+'"><span class="overview-week-value">'+v+' %'+(partialDay?'*':'')+'</span><span class="overview-week-track"><span class="overview-week-column" style="height:'+width+'%"></span></span><span class="overview-week-label">'+label+'</span></button>';
-    }).join('');
-    bars.querySelectorAll('[data-day]').forEach(button=>button.addEventListener('click',()=>{selectedDay=button.dataset.day;updatePublic();updateReplay();}));
-  }
-  if(select)select.onchange=()=>{selectedDay=select.value;updatePublic();updateReplay();};
+  if(!bars||!dataset)return;
+  bars.innerHTML=DAYS.map(d=>{
+    const curr=dataset.days[d],v=curr.analytics.within_3_minutes;
+    const label=WEEKDAY[new Date(d+'T12:00:00').getDay()];
+    const partial=!curr.complete;
+    return '<a class="overview-week-item'+(partial?' is-partial':'')+'" href="'+urlForDay(d)+'" aria-label="'+dayName(d)+', '+v+' % včas'+(partial?', neúplný den':'')+'"><span class="overview-week-value">'+v+' %'+(partial?'*':'')+'</span><span class="overview-week-track"><span class="overview-week-column" style="height:'+Math.max(2,Math.min(100,v))+'%"></span></span><span class="overview-week-label">'+label+'</span></a>';
+  }).join('');
 }
 
 function minuteOf(v){const m=String(v||'').match(/^(\d+):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):null;}
