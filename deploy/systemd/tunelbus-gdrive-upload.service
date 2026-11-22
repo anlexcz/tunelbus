@@ -14,3 +14,5 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=full
 ProtectHome=read-only
+# Permit rclone to persist refreshed OAuth tokens in its private configuration.
+ReadWritePaths=/home/anlex/.config/rclone
