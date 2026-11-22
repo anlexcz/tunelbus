@@ -52,5 +52,5 @@ for day in 2026-11-20 2026-11-21 2026-11-22; do
 done
 test -s "$ROOT/backups/daily/tunelbus_2026-11-19.sqlite3"
 test -s "$ROOT/backups/intraday/tunelbus_2026-11-22_06-00-00.sqlite3"
-test -s "$ROOT/backups/intraday/tunelbus_2026-11-23_00-00-00.sqlite3"
+test -s "$ROOT/backups/intraday/tunelbus_2026-11-23_00-00-00.sqlite3.zst"
 echo "OK: dry-run, fail-closed remote mismatch, 3-day daily retention, prior-day intraday, legacy preservation"
