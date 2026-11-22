@@ -75,14 +75,7 @@ ln -- "$TEMP_ZST" "$DESTINATION"
 rm -f -- "$TEMP_ZST"
 TEMP_ZST=""
 
-# Never delete pre-existing uncompressed backups automatically.
-# For new compressed snapshots, preserve the original 14-day age-based
-# policy, only after a successfully validated daily backup.
-if [[ "$MODE" == "daily" ]]; then
-    find "$INTRADAY_DIR" -maxdepth 1 -type f \
-        -name "tunelbus_${BACKUP_DATE}_*.sqlite3.zst" -delete
-    find "$DAILY_DIR" -maxdepth 1 -type f \
-        -name 'tunelbus_*.sqlite3.zst' -mtime +14 -delete
-fi
+# No local retention here: cleanup runs only after remote upload verification.
+# A failed Google Drive upload must never cause local snapshots to disappear.
 
 echo "$MODE backup created, SQLite integrity and Zstandard stream verified: $DESTINATION"
