@@ -40,6 +40,10 @@ def register_frontend(
     def about(request: Request):
         return templates.TemplateResponse(request=request, name="about.html", context={"active_page": "about"})
 
+    @app.get("/privacy", response_class=HTMLResponse)
+    def privacy(request: Request):
+        return templates.TemplateResponse(request=request, name="privacy.html", context={"active_page": "privacy"})
+
     @app.get("/history", response_class=HTMLResponse)
     def history(request: Request):
         return templates.TemplateResponse(request=request, name="history.html", context={"active_page": "history"})
