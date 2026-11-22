@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Zásady ochrany osobních údajů | Tunelbus{% endblock %}
+
+{% block content %}
+<section class="about-page" aria-labelledby="privacy-title">
+  <div class="site-shell about-page__content">
+    <header class="about-page__intro">
+      <p class="site-eyebrow">Tunelbus Archive</p>
+      <h1 id="privacy-title">Zásady ochrany osobních údajů</h1>
+      <p class="about-page__lead">Informace o použití Google účtu a Google Drive API pro soukromé zálohování projektu Tunelbus.</p>
+    </header>
+
+    <section class="about-section" aria-labelledby="privacy-controller">
+      <h2 id="privacy-controller">Provozovatel a kontakt</h2>
+      <p>Projekt Tunelbus a nástroj Tunelbus Archive provozuje Anlex. Dotazy týkající se ochrany osobních údajů lze zasílat na <a href="mailto:mail@anlex.cz">mail@anlex.cz</a>.</p>
+    </section>
+
+    <section class="about-section" aria-labelledby="privacy-purpose">
+      <h2 id="privacy-purpose">K čemu slouží Tunelbus Archive</h2>
+      <p>Tunelbus Archive je neveřejný nástroj pro ukládání a ověřování záloh provozní databáze projektu Tunelbus v úložišti Google Drive, ke kterému udělí oprávnění jeho vlastník.</p>
+      <p>Nejde o přihlašování návštěvníků webu Tunelbus. Návštěvníci webu nemusí poskytovat přístup ke svému Google účtu.</p>
+    </section>
+
+    <section class="about-section" aria-labelledby="privacy-access">
+      <h2 id="privacy-access">Přístup ke Google Disku a zpracovávané údaje</h2>
+      <p>Po udělení souhlasu používá nástroj OAuth oprávnění ke Google Drive API pro nahrávání, čtení a kontrolu záložních souborů. Rozsah technicky uděleného oprávnění se řídí rozsahem (scope), který uživatel potvrdí na obrazovce Google.</p>
+      <p>Archivované soubory mohou obsahovat jízdní řády, údaje o provozu veřejné dopravy a další informace uložené v databázi Tunelbus. OAuth přihlašovací údaje a tokeny slouží k autorizaci přístupu; nejsou zveřejňovány na webu ani ukládány do veřejného Git repozitáře.</p>
+    </section>
+
+    <section class="about-section" aria-labelledby="privacy-storage">
+      <h2 id="privacy-storage">Ukládání, sdílení a zabezpečení</h2>
+      <p>Zálohy jsou ukládány do Google Disku v rámci účtu, který přístup povolil. Data se nepoužívají k reklamním účelům ani se neprodávají třetím stranám. Předání údajů společnosti Google souvisí s provozem služby Google Drive.</p>
+      <p>Počet uchovávaných záloh a jejich doba uchování se řídí nastavením zálohování. Souborové zálohy mohou být odstraněny správcem projektu; odvolání OAuth přístupu samo o sobě dříve nahrané soubory neodstraní.</p>
+    </section>
+
+    <section class="about-section" aria-labelledby="privacy-control">
+      <h2 id="privacy-control">Odvolání přístupu a dotazy</h2>
+      <p>Přístup aplikace ke Google účtu lze kdykoliv odvolat v <a href="https://myaccount.google.com/connections">nastavení propojených aplikací Google účtu</a>. Po odvolání nebude možné provádět další zálohování, dokud vlastník přístup znovu nepovolí.</p>
+      <p>Chcete-li se zeptat na zpracování údajů nebo požádat o odstranění dat spravovaných projektem Tunelbus, kontaktujte <a href="mailto:mail@anlex.cz">mail@anlex.cz</a>.</p>
+    </section>
+
+    <section class="about-section" aria-labelledby="privacy-update">
+      <h2 id="privacy-update">Aktualizace dokumentu</h2>
+      <p>Poslední aktualizace: 22. listopadu 2026.</p>
+    </section>
+  </div>
+</section>
+{% endblock %}
