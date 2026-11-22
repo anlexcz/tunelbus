@@ -3,8 +3,8 @@ set -euo pipefail
 
 # Full, consistent SQLite snapshots compressed with Zstandard.
 # This script does not migrate, modify, or delete legacy .sqlite3 backups.
-DB="/srv/anlex/tunelbus/data/tunelbus.sqlite3"
-BACKUP_ROOT="/srv/anlex/tunelbus/backups"
+DB="${TUNELBUS_DB:-/srv/anlex/tunelbus/data/tunelbus.sqlite3}"
+BACKUP_ROOT="${TUNELBUS_BACKUP_ROOT:-/srv/anlex/tunelbus/backups}"
 INTRADAY_DIR="$BACKUP_ROOT/intraday"
 DAILY_DIR="$BACKUP_ROOT/daily"
 MODE="${1:-}"
@@ -69,7 +69,10 @@ zstd -q -t "$TEMP_ZST"
 
 # Publish only after SQLite integrity and compressed-stream validation succeed.
 chmod 0640 "$TEMP_ZST"
-mv -n -- "$TEMP_ZST" "$DESTINATION"
+# Same-filesystem hard link publishes atomically and refuses an existing target.
+# Unlike mv -n, this fails loudly rather than silently skipping publication.
+ln -- "$TEMP_ZST" "$DESTINATION"
+rm -f -- "$TEMP_ZST"
 TEMP_ZST=""
 
 # Never delete pre-existing uncompressed backups automatically.
