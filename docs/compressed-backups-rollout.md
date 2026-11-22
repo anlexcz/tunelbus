@@ -12,7 +12,7 @@
 
 ## Rollout (do not run before reviewing)
 1. Merge the PR, then update the server copy of `backup.sh` only, ensuring no local modifications are lost.
-2. Before enabling: `bash -n /srv/anlex/tunelbus/backup.sh`; ensure `zstd`, `sqlite3`, and `flock` are installed.
+2. First, run the isolated smoke test without changing the production working tree:\n\n   ```bash\n   cd /srv/anlex/tunelbus\n   git fetch origin feat/compressed-sqlite-backups\n   TEST_DIR="$(mktemp -d)"\n   git archive FETCH_HEAD backup.sh tests/smoke_compressed_backups.sh | tar -x -C "$TEST_DIR"\n   bash "$TEST_DIR/tests/smoke_compressed_backups.sh"\n   # Remove TEST_DIR after confirming it contains only the extracted test files.\n   ```\n\n3. Before enabling: `bash -n /srv/anlex/tunelbus/backup.sh`; ensure `zstd`, `sqlite3`, and `flock` are installed.
 3. Check available disk. The snapshot process needs room for an additional uncompressed SQLite copy **plus** its compressed output simultaneously, currently approximately 1.3 GB, with safety margin.
 4. For first trial, use an isolated test environment or deliberately run one service while monitoring available disk: `sudo systemctl start tunelbus-backup-intraday.service`. Note: this writes a **new** backup but deletes no legacy backup.
 5. Check `systemctl status tunelbus-backup-intraday.service`, journal logs and generated `.sqlite3.zst`. `zstd -t /path/to/new.sqlite3.zst` should succeed.
