@@ -1,0 +1,10 @@
+[Unit]
+Description=Upload previous day's Tunelbus daily backup to Google Drive
+
+[Timer]
+OnCalendar=*-*-* 04:00:00
+Persistent=true
+Unit=tunelbus-gdrive-upload.service
+
+[Install]
+WantedBy=timers.target
