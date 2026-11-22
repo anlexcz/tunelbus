@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Upload an existing verified daily SQLite/Zstandard snapshot.
-# Never deletes or modifies local backups or Google Drive content.
+# Upload and verify a daily snapshot; optional local retention runs only after success.
 BACKUP_ROOT="${TUNELBUS_BACKUP_ROOT:-/srv/anlex/tunelbus/backups}"
 REMOTE_ROOT="${TUNELBUS_REMOTE_ROOT:-gdrive:Tunelbus/Zálohy}"
 BACKUP_DATE="${1:-$(date -d yesterday +%F)}"
@@ -35,3 +35,8 @@ if [[ "$LOCAL_HASH" != "$REMOTE_HASH" ]]; then
     exit 1
 fi
 echo "Verified Google Drive daily snapshot: date=$BACKUP_DATE bytes=$LOCAL_BYTES sha256=$LOCAL_HASH"
+
+# Retention is read-only by default. Enable deletion only after reviewing a
+# dry run and granting the uploader permission to remove local backup files.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+/usr/bin/bash "$SCRIPT_DIR/prune-verified-backups.sh" "$BACKUP_DATE"
