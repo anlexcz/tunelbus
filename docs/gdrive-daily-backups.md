@@ -1,44 +1,35 @@
-# Tunelbus: off-site daily SQLite backups to Google Drive
+# Tunelbus – denní zálohy na Google Drive a bezpečná lokální retence
 
-**Status: staged, NOT enabled automatically by git pull.** The daily local backup service continues to run as `tunelbus`, and the remote uploader runs under `anlex` with supplementary `tunelbus` group *only in that service*. The latter group grants read access to backups and potentially other group-readable data: review this access before activation. No global chmod/chgrp and no sudoers changes are needed.
+## Provozní uspořádání
+- Živá databáze `data/tunelbus.sqlite3` zůstává **kompletní**, nikdy ji retence nemaže ani nemění.
+- Denní záloha vzniká v 02:30 do `backups/daily/tunelbus_YYYY-MM-DD.sqlite3.zst`, s datem předchozího dne. SQLite Backup API, integrity_check a Zstandard kontrola.
+- Upload na `gdrive:Tunelbus/Zálohy` běží v 04:00 a porovnává SHA-256 celé komprimované zálohy se skutečně přečtenou vzdálenou kopií.
+- Samostatný úplný archiv `gdrive:Tunelbus/Archiv/` se retencí nemění. Vzdálené denní zálohy se také automaticky nemažou.
+- Vnitrodenní zálohy zůstávají místní; jejich komprimované soubory pro **včerejší den** lze odstranit, jen když byl tento denní backup úspěšně nahrán a ověřen.
+- Místní komprimované denní zálohy zůstávají pro **poslední 3 dokončené kalendářní dny** včetně právě nahraného dne. Každá starší lokální denní záloha se musí porovnat s její vlastní vzdálenou kopií.
+- Historické nekomprimované soubory `*.sqlite3` se **nikdy automaticky nemažou**. Jejich zvláštní ruční úklid je samostatná operace.
 
-## Prerequisites
-- Local daily snapshot `backups/daily/tunelbus_YYYY-MM-DD.sqlite3.zst` created by existing `backup.sh daily`.
-- `rclone` configured as `anlex` with access to `gdrive:Tunelbus/Zálohy`.
-- Fix rclone shared Google Drive OAuth client retirement with a user-managed client ID and confirm it remains usable. Do not put tokens or client secrets in Git.
-- `zstd`, `sha256sum`, `rclone` installed; enough free disk space to run the normal daily snapshot.
-- Confirm service account/group names and path on the VPS.
+## Důležitá bezpečnostní změna
+`backup.sh` už nic nemaže na základě `mtime`. Staré čtrnáctidenní `find -delete` bylo odstraněno: lokální snapshot se nesmí ztratit při výpadku Google Disku. Čištění se volá až ze skriptu `scripts/upload-daily-backup.sh` po dokončeném vzdáleném SHA-256 ověření.
 
-## Behavior
-- Uploads **yesterday's daily compressed snapshot** at 04:00 Europe/Prague (assuming host local timezone is Europe/Prague); daily SQLite backup remains at 02:30.
-- Existing filenames are immutable; same snapshot can be retried, changed remote content is refused.
-- Checks Zstandard stream locally; reads remote file back via `rclone cat` and checks SHA-256 exact byte identity.
-- Exits nonzero on missing snapshot, insufficient permissions, transfer errors or checksum mismatch.
-- **Never removes or prunes any local or remote files.** The existing local backup script has a separate ~14-day retention for new compressed daily archives; shortening this to 3 days is NOT implemented because remote archiving has not yet been observed over time.
-- A successful transfer means the uploaded compressed bytes match a locally verified archive; a remote restore test is still required for long-term assurance.
+`scripts/prune-verified-backups.sh` má ve výchozím stavu **dry-run**. Soubory odstraní pouze s `TUNELBUS_RETENTION_APPLY=1`. Při chybě Google Drive, checksumu nebo komprimovaného souboru skončí bez mazání. Provozní účet `anlex` musí mít právo zapisovat do adresářů `backups/daily` a `backups/intraday` (mazání souborů vyžaduje zápis do adresáře). Před nastavením `APPLY=1` zkontrolujte oprávnění obou adresářů, aplikujte potřebná nejmenší oprávnění po zvláštním schválení a ověřte výstup dry-run. Nepoužívat rekurzivní chmod nebo chown nad daty.
 
-## Manual test before activation
-1. Ensure client ID migration is complete and rclone connectivity works.
-2. Verify `id anlex`, `getent group tunelbus`, and the directory ownership/access.
-3. Read-only local test with group privileges: `sudo -u anlex -g anlex -G tunelbus zstd -t /srv/anlex/tunelbus/backups/daily/tunelbus_YYYY-MM-DD.sqlite3.zst`.
-4. Upload one existing daily snapshot by running the script under service context, ideally using `sudo systemctl start tunelbus-gdrive-upload.service` **after** installing the unit. Inspect `journalctl -u tunelbus-gdrive-upload.service -n 100 --no-pager`.
-5. Validate restore by downloading a remote snapshot to a temporary file, decompressing, and running SQLite `PRAGMA integrity_check`. Keep enough free space or stream into a test destination with sufficient capacity.
-
-## Installation (only after explicit approval)
+## Kontrola bez mazání
 ```bash
 cd /srv/anlex/tunelbus
-git pull --ff-only origin main
-sudo install -m 0644 deploy/systemd/tunelbus-gdrive-upload.service /etc/systemd/system/
-sudo install -m 0644 deploy/systemd/tunelbus-gdrive-upload.timer /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl start tunelbus-gdrive-upload.service
-sudo systemctl status tunelbus-gdrive-upload.service --no-pager
-# Enable only after verifying success:
-sudo systemctl enable --now tunelbus-gdrive-upload.timer
+bash tests/smoke_compressed_backups.sh
+bash tests/smoke_verified_retention.sh
+sudo -u anlex /usr/bin/bash scripts/upload-daily-backup.sh
+stat -c '%A %U:%G %n' backups/daily backups/intraday
 ```
+Pozor: přímé spuštění jako `anlex` nemusí mít přístup ke komprimované denní záloze bez `SupplementaryGroups=tunelbus`. Pro reálný ruční test použijte `sudo systemctl start tunelbus-gdrive-upload.service` a prohlédněte journal. Ten upload při opakovaném běhu musí projít jako immutable a retence zůstane dry-run.
 
-## Next stage (not part of this change)
-1. Archive/verify historical daily snapshots one at a time.
-2. Agree 3-day local retention policy and ensure a remote verification marker/manifest supports safe pruning.
-3. Fix any incorrect `app/backup.py` offline file-copy backup usage.
-4. Add failure alerts and regular remote restore drills.
+## Zapnutí mazání až po kontrole
+V systemd drop-in lze přidat:
+```ini
+[Service]
+Environment=TUNELBUS_RETENTION_APPLY=1
+```
+Následuje `sudo systemctl daemon-reload`, spuštění jednoho testovacího uploadu a kontrola journalu, seznamu zachovaných souborů a `df -h`. Úspěšný upload **není automaticky důkaz, že soubory zmizely**; sledujte `PRUNED` nebo `WOULD_PRUNE`.
+
+Pravidelné selhání uploadu se nesmí tiše přehlížet: nastavit a otestovat upozornění. Pravidelně provádět i zkušební obnovu.
